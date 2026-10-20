@@ -1,0 +1,70 @@
+{% extends "customer/base.html" %}
+{% from "_macros.html" import icon, status_badge %}
+{% block portal_content %}
+<a class="back-link" href="{{ url_for('customer.shipments') }}">{{ icon('arrow-right', 17) }} العودة إلى شحناتي</a>
+
+<article class="shipment-result customer-shipment">
+  <header class="shipment-result-head">
+    <div>
+      <span class="shipment-code-label">رقم الشحنة</span>
+      <div class="code-line">
+        <h1 class="shipment-code">{{ shipment.code }}</h1>
+        <button type="button" class="icon-button" data-copy="{{ shipment.code }}" aria-label="نسخ رقم الشحنة">{{ icon('document', 18) }}</button>
+      </div>
+      <span class="shipment-service">{{ shipment.service_type|service }}</span>
+    </div>
+    <div class="shipment-head-status">
+      {{ status_badge(shipment.status) }}
+      <span class="shipment-updated">آخر تحديث: {{ shipment.updated_at|datetime }}</span>
+    </div>
+  </header>
+
+  <div class="shipment-meta-grid">
+    <div class="meta-item"><span class="meta-label">من</span><span class="meta-value">{{ shipment.origin }}</span></div>
+    <div class="meta-item"><span class="meta-label">إلى</span><span class="meta-value">{{ shipment.destination }}</span></div>
+    <div class="meta-item"><span class="meta-label">عدد القطع</span><span class="meta-value">{{ shipment.pieces }}</span></div>
+    <div class="meta-item"><span class="meta-label">الوزن</span><span class="meta-value">{{ shipment.weight_kg|weight }}</span></div>
+    <div class="meta-item"><span class="meta-label">تاريخ الإنشاء</span><span class="meta-value">{{ shipment.created_at|date }}</span></div>
+    <div class="meta-item"><span class="meta-label">تاريخ التسليم</span><span class="meta-value">{{ shipment.delivered_at|date if shipment.delivered_at else '—' }}</span></div>
+    {% if shipment.amount is not none %}
+      <div class="meta-item"><span class="meta-label">المبلغ</span><span class="meta-value">{{ shipment.amount|money(shipment.currency) }}</span></div>
+    {% endif %}
+  </div>
+
+  <div class="shipment-body-grid">
+    <div class="timeline-panel">
+      <h2>سجل التتبع</h2>
+      {% if events %}
+        <ol class="timeline">
+          {% for event in events %}
+            <li class="timeline-item {{ 'is-current' if loop.first else '' }}">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <span class="timeline-date">{{ event.event_at|datetime }}</span>
+                <h3>{{ event.note or status_meta(event.status).label }}</h3>
+                <p>{{ status_meta(event.status).label }}{% if event.location %} — {{ event.location }}{% endif %}</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ol>
+      {% else %}
+        <p class="muted">لا توجد أحداث مسجلة بعد.</p>
+      {% endif %}
+    </div>
+    <aside class="shipment-side">
+      <div class="side-card">
+        <h3>تفاصيل إضافية</h3>
+        {% if shipment.description %}<p><strong>الوصف:</strong> {{ shipment.description }}</p>{% endif %}
+        {% if shipment.sender_name %}<p><strong>المرسل:</strong> {{ shipment.sender_name }}</p>{% endif %}
+        {% if shipment.sender_phone %}<p><strong>هاتف المرسل:</strong> <span dir="ltr">{{ shipment.sender_phone|phone }}</span></p>{% endif %}
+      </div>
+      <div class="side-card">
+        <h3>تحتاج مساعدة؟</h3>
+        <p>إذا كان لديك استفسار عن هذه الشحنة، تواصل معنا واذكر رقمها.</p>
+        <a class="btn btn-primary btn-block" href="{{ url_for('public.contact') }}">تواصل معنا</a>
+        <button type="button" class="btn btn-ghost btn-block" data-print>طباعة التفاصيل</button>
+      </div>
+    </aside>
+  </div>
+</article>
+{% endblock %}

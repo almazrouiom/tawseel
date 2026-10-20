@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block content %}
+<section class="page-hero">
+  <div class="container page-hero-inner">
+    <span class="eyebrow eyebrow-light">خدماتنا</span>
+    <h1>حلول توصيل مصممة لتناسب يومك</h1>
+    <p>من الطلب الصغير إلى الشحنة التجارية المتكررة، نمنحك خياراً واضحاً ومساراً يمكن متابعته.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container service-detail-grid">
+    <article class="service-detail" id="express">
+      <span class="service-icon tone-orange">{{ icon('truck', 28) }}</span>
+      <div>
+        <h2>توصيل سريع</h2>
+        <p>عندما يكون الوقت مهماً، نوفر خيار توصيل ذا أولوية مع متابعة مباشرة لحالة الشحنة.</p>
+        <ul class="check-list compact">
+          <li>{{ icon('check', 18) }} استلام وتسليم في نفس اليوم حسب المدينة</li>
+          <li>{{ icon('check', 18) }} تحديثات حالة الشحنة أولاً بأول</li>
+          <li>{{ icon('check', 18) }} مناسب للمستندات والطرود العاجلة</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="service-detail" id="business">
+      <span class="service-icon tone-navy">{{ icon('box', 28) }}</span>
+      <div>
+        <h2>شحن تجاري</h2>
+        <p>حلول للشركات التي تحتاج إلى تنظيم شحناتها ومتابعة مستنداتها دون فوضى.</p>
+        <ul class="check-list compact">
+          <li>{{ icon('check', 18) }} إدارة شحنات متعددة من حساب واحد</li>
+          <li>{{ icon('check', 18) }} سجل واضح لكل شحنة وحدث</li>
+          <li>{{ icon('check', 18) }} خيارات مرنة للشركات والمؤسسات</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="service-detail" id="ecommerce">
+      <span class="service-icon tone-green">{{ icon('store', 28) }}</span>
+      <div>
+        <h2>حلول المتاجر الإلكترونية</h2>
+        <p>اجعل تجربة التوصيل جزءاً من تجربة متجرك: طلبات منظمة وتتبع واضح لعملائك.</p>
+        <ul class="check-list compact">
+          <li>{{ icon('check', 18) }} توصيل طلبات المتجر حسب حجم العمل</li>
+          <li>{{ icon('check', 18) }} متابعة الشحنات وتقليل استفسارات «أين طلبي؟»</li>
+          <li>{{ icon('check', 18) }} إمكانية ربط الشحنة بحساب العميل</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="service-detail" id="documents">
+      <span class="service-icon tone-blue">{{ icon('document', 28) }}</span>
+      <div>
+        <h2>توصيل مستندات</h2>
+        <p>عناية خاصة للوثائق والعقود التي تحتاج إلى تأكيد استلام وتسليم.</p>
+        <ul class="check-list compact">
+          <li>{{ icon('check', 18) }} تعامل منظم مع المغلفات والمستندات</li>
+          <li>{{ icon('check', 18) }} تحديث حالة الاستلام والتسليم</li>
+          <li>{{ icon('check', 18) }} مناسب للجهات الحكومية والشركات</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section section-muted">
+  <div class="container">
+    <div class="section-head centered">
+      <div>
+        <span class="eyebrow">قبل أن تطلب</span>
+        <h2>كيف نرتّب شحنتك؟</h2>
+        <p>أخبرنا بالتفاصيل، وسنساعدك في اختيار الخدمة المناسبة.</p>
+      </div>
+    </div>
+    <div class="mini-steps">
+      <div><span>1</span><h3>شارك التفاصيل</h3><p>نوع الشحنة، مدينتا الإرسال والوصول، والوزن التقريبي.</p></div>
+      <div><span>2</span><h3>نؤكد الخيار</h3><p>نوضح لك الخدمة المناسبة والخطوات التالية.</p></div>
+      <div><span>3</span><h3>نستلم ونتابع</h3><p>يتم تسجيل الشحنة وتستطيع متابعتها برقمها.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container cta-inner">
+    <div>
+      <h2>لديك شحنة تحتاج ترتيباً؟</h2>
+      <p>أرسل التفاصيل وسنعود إليك بالخيار المناسب.</p>
+    </div>
+    <a class="btn btn-accent btn-lg" href="{{ url_for('public.contact', type='quote') }}">اطلب عرض سعر</a>
+  </div>
+</section>
+{% endblock %}

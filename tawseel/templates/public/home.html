@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, status_badge %}
+{% block head_extra %}
+<script type="application/ld+json" nonce="{{ nonce }}">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": {{ settings.company_name|tojson }},
+  "alternateName": {{ settings.company_name_en|tojson }},
+  "url": {{ request.url_root.rstrip('/')|tojson }},
+  "description": {{ settings.meta_description|tojson }},
+  "areaServed": "OM",
+  "address": {"@type": "PostalAddress", "addressLocality": {{ settings.address|tojson }}, "addressCountry": "OM"}
+  {% if settings.phone %}, "telephone": {{ settings.phone|tojson }}{% endif %}
+  {% if settings.email %}, "email": {{ settings.email|tojson }}{% endif %}
+}
+</script>
+{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow eyebrow-light">{{ icon('sparkle', 16) }} توصيل داخل سلطنة عُمان</span>
+      <h1>شحناتك تصل بأمان،<br><span>ومسارها واضح.</span></h1>
+      <p>من الاستلام إلى التسليم، فريق توصيل يدير كل خطوة بعناية. تتبّع شحنتك لحظة بلحظة، واعرف مكانها وحالتها دون انتظار.</p>
+      <div class="hero-actions">
+        <a class="btn btn-accent btn-lg" href="{{ url_for('public.contact', type='quote') }}">اطلب عرض سعر {{ icon('arrow-left', 18) }}</a>
+        <a class="btn btn-outline-light btn-lg" href="{{ url_for('public.services') }}">استكشف خدماتنا</a>
+      </div>
+      <div class="hero-trust">
+        <span>{{ icon('shield', 18) }} تعامل موثوق</span>
+        <span>{{ icon('clock', 18) }} تحديثات فورية</span>
+        <span>{{ icon('user', 18) }} دعم مباشر</span>
+      </div>
+    </div>
+
+    <div class="hero-panel">
+      <div class="track-card">
+        <div class="track-card-head">
+          <div>
+            <span class="track-kicker">تتبع الشحنة</span>
+            <h2>أين شحنتك الآن؟</h2>
+          </div>
+          <span class="track-icon">{{ icon('package', 26) }}</span>
+        </div>
+        <form method="get" action="{{ url_for('public.track') }}" class="track-form" data-loading>
+          <label for="hero-code">رقم الشحنة</label>
+          <div class="input-group">
+            <input id="hero-code" name="code" type="text" inputmode="text" autocomplete="off" spellcheck="false"
+                   placeholder="مثال: TS1392042" maxlength="32" required pattern="[A-Za-z0-9#\-\s]{3,32}">
+            <button class="btn btn-primary" type="submit">{{ icon('search', 18) }} تتبع</button>
+          </div>
+        </form>
+        <div class="track-preview" aria-hidden="true">
+          <div class="preview-route">
+            <span><i></i> مسقط</span>
+            <span class="preview-line"></span>
+            <span><i></i> صلالة</span>
+          </div>
+          <div class="preview-status">
+            <span class="badge badge-info"><span class="badge-dot"></span>قيد النقل</span>
+            <small>آخر تحديث قبل 20 دقيقة</small>
+          </div>
+        </div>
+        <p class="track-help">رقم الشحنة موجود في رسالة التأكيد أو الفاتورة. <a href="{{ url_for('auth.login') }}">لديك حساب؟</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature-strip">
+  <div class="container feature-grid">
+    <div class="feature-item">
+      <span class="feature-icon">{{ icon('pin', 22) }}</span>
+      <div><strong>تغطية واسعة</strong><small>خدمات توصيل إلى مختلف ولايات السلطنة</small></div>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">{{ icon('search', 22) }}</span>
+      <div><strong>تتبع لحظي</strong><small>حالة الشحنة ومسارها في أي وقت</small></div>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">{{ icon('shield', 22) }}</span>
+      <div><strong>عناية بكل شحنة</strong><small>إجراءات استلام وتسليم واضحة</small></div>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">{{ icon('phone', 22) }}</span>
+      <div><strong>دعم قريب منك</strong><small>فريق يتابع استفساراتك ويساعدك</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">حلول التوصيل</span>
+        <h2>خدمة تناسب شحنتك</h2>
+        <p>سواء كانت مستنداً مهماً أو طلباً لمتجرك أو شحنة تجارية، لدينا مسار واضح لكل نوع.</p>
+      </div>
+      <a class="text-link" href="{{ url_for('public.services') }}">كل الخدمات {{ icon('arrow-left', 17) }}</a>
+    </div>
+    <div class="service-grid">
+      <a class="service-card" href="{{ url_for('public.services') }}#express">
+        <span class="service-icon tone-orange">{{ icon('truck', 26) }}</span>
+        <h3>توصيل سريع</h3>
+        <p>خيارات مرنة للشحنات التي تحتاج أولوية في الاستلام والتسليم.</p>
+        <span class="card-link">اعرف المزيد {{ icon('arrow-left', 16) }}</span>
+      </a>
+      <a class="service-card" href="{{ url_for('public.services') }}#business">
+        <span class="service-icon tone-navy">{{ icon('box', 26) }}</span>
+        <h3>شحن تجاري</h3>
+        <p>حلول للشركات والمؤسسات مع متابعة مستندات وشحنات متعددة.</p>
+        <span class="card-link">اعرف المزيد {{ icon('arrow-left', 16) }}</span>
+      </a>
+      <a class="service-card" href="{{ url_for('public.services') }}#ecommerce">
+        <span class="service-icon tone-green">{{ icon('store', 26) }}</span>
+        <h3>حلول المتاجر</h3>
+        <p>توصيل طلبات المتاجر الإلكترونية وتجربة تتبع واضحة لعملائك.</p>
+        <span class="card-link">اعرف المزيد {{ icon('arrow-left', 16) }}</span>
+      </a>
+      <a class="service-card" href="{{ url_for('public.services') }}#documents">
+        <span class="service-icon tone-blue">{{ icon('document', 26) }}</span>
+        <h3>توصيل مستندات</h3>
+        <p>عناية خاصة بالوثائق والعقود مع تأكيد الاستلام والتسليم.</p>
+        <span class="card-link">اعرف المزيد {{ icon('arrow-left', 16) }}</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="section section-muted">
+  <div class="container how-grid">
+    <div class="how-copy">
+      <span class="eyebrow">كيف تعمل خدمة توصيل؟</span>
+      <h2>ثلاث خطوات، وكل شيء واضح</h2>
+      <p>صممنا التجربة لتكون بسيطة من أول طلب إلى لحظة التسليم.</p>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">01</span>
+          <div><h3>اطلب أو أنشئ شحنتك</h3><p>تواصل معنا أو سجّل الدخول لإنشاء شحنة ومتابعتها من حسابك.</p></div>
+        </div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <div><h3>نستلم ونتابع</h3><p>يتم تسجيل الشحنة وتحديث حالتها في كل مرحلة من رحلتها.</p></div>
+        </div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <div><h3>تتبّع حتى التسليم</h3><p>استخدم رقم الشحنة أو حسابك لمعرفة آخر تحديث وموعد الوصول.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="coverage-card">
+      <div class="coverage-head">
+        <span class="eyebrow eyebrow-light">أين نصل؟</span>
+        <h2>من مسقط إلى كل عُمان</h2>
+        <p>نخدم المدن الرئيسية والولايات عبر شبكة تشغيل مرنة.</p>
+      </div>
+      <div class="city-chips" aria-label="مدن نخدمها">
+        <span>مسقط</span><span>صلالة</span><span>صحار</span><span>نزوى</span>
+        <span>صور</span><span>السيب</span><span>بركاء</span><span>عبري</span>
+        <span>الرستاق</span><span>إبراء</span><span>البريمي</span><span>الدقم</span>
+      </div>
+      <div class="coverage-footer">
+        <span>{{ icon('clock', 18) }} مواعيد مرنة</span>
+        <span>{{ icon('shield', 18) }} متابعة مسؤول</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container why-grid">
+    <div class="why-visual" aria-hidden="true">
+      <div class="visual-card visual-card-main">
+        <span class="visual-label">لوحة الشحنة</span>
+        <div class="visual-route">
+          <span class="route-dot done"></span><span class="route-text">تم الاستلام</span>
+          <span class="route-line done"></span>
+        </div>
+        <div class="visual-route">
+          <span class="route-dot current"></span><span class="route-text">قيد النقل</span>
+          <span class="route-line"></span>
+        </div>
+        <div class="visual-route">
+          <span class="route-dot"></span><span class="route-text">قيد التوصيل</span>
+        </div>
+        <div class="visual-footer">
+          <span>TS1392042</span>
+          {{ status_badge('in_transit') }}
+        </div>
+      </div>
+      <div class="visual-bubble">{{ icon('check', 20) }} تم تحديث المسار</div>
+    </div>
+    <div class="why-copy">
+      <span class="eyebrow">لماذا توصيل؟</span>
+      <h2>تفاصيل صغيرة تصنع فرقاً كبيراً</h2>
+      <p>نعرف أن الشحنة ليست مجرد طرد. لذلك نهتم بالوضوح والتواصل والمتابعة في كل مرحلة.</p>
+      <ul class="check-list">
+        <li>{{ icon('check', 19) }} <span><strong>تحديثات واضحة:</strong> تعرف حالة شحنتك دون الحاجة للاتصال.</span></li>
+        <li>{{ icon('check', 19) }} <span><strong>تعامل مسؤول:</strong> كل شحنة لها رقم ومسار يمكن الرجوع إليه.</span></li>
+        <li>{{ icon('check', 19) }} <span><strong>دعم مباشر:</strong> فريقنا جاهز للإجابة عن استفساراتك.</span></li>
+        <li>{{ icon('check', 19) }} <span><strong>حلول مرنة:</strong> خيارات تناسب الأفراد والشركات والمتاجر.</span></li>
+      </ul>
+      <a class="btn btn-primary" href="{{ url_for('public.contact') }}">تواصل مع فريقنا {{ icon('arrow-left', 18) }}</a>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container cta-inner">
+    <div>
+      <span class="eyebrow eyebrow-light">جاهز للانطلاق؟</span>
+      <h2>خلّي شحنتك القادمة على توصيل.</h2>
+      <p>اطلب عرض سعر أو تواصل معنا لمعرفة الخيار المناسب لاحتياجك.</p>
+    </div>
+    <div class="cta-actions">
+      <a class="btn btn-accent btn-lg" href="{{ url_for('public.contact', type='quote') }}">اطلب عرض سعر</a>
+      {% if settings.phone %}
+        <a class="btn btn-outline-light btn-lg" href="tel:{{ settings.phone|replace(' ', '') }}">{{ settings.phone }}</a>
+      {% else %}
+        <a class="btn btn-outline-light btn-lg" href="{{ url_for('public.contact') }}">اتصل بنا</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

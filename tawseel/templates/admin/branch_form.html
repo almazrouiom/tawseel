@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <a class="back-link" href="{{ url_for('admin.branches') }}">{{ icon('arrow-right', 16) }} عودة للفروع</a>
+    <h2>{{ 'تعديل الفرع' if branch else 'فرع جديد' }}</h2>
+    <p>{{ 'حدّث بيانات الفرع وحالته التشغيلية.' if branch else 'أضف فرعاً جديداً ثم أسند إليه الموظفين والشحنات.' }}</p>
+  </div>
+</div>
+
+<form method="post" class="admin-form" data-loading>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <section class="panel form-section">
+    <div class="panel-head"><div><h2>بيانات الفرع</h2><p>الكود والاسم وبيانات التواصل.</p></div></div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="branch-code">كود الفرع</label>
+        <input id="branch-code" name="code" type="text" maxlength="12" required dir="ltr" placeholder="MCT" value="{{ values.code }}">
+        <small class="field-hint">من 2 إلى 12 حرفاً أو رقماً، ويظهر لموظفي الفرع.</small>
+      </div>
+      <div class="field">
+        <label for="branch-name">اسم الفرع</label>
+        <input id="branch-name" name="name" type="text" maxlength="120" required placeholder="فرع مسقط" value="{{ values.name }}">
+      </div>
+      <div class="field">
+        <label for="branch-city">المدينة</label>
+        <input id="branch-city" name="city" type="text" maxlength="80" placeholder="مسقط" value="{{ values.city }}">
+      </div>
+      <div class="field">
+        <label for="branch-phone">هاتف الفرع <span class="optional">اختياري</span></label>
+        <input id="branch-phone" name="phone" type="tel" maxlength="20" dir="ltr" placeholder="+968 2xxx xxxx" value="{{ values.phone }}">
+      </div>
+      <div class="field field-wide">
+        <label for="branch-address">العنوان <span class="optional">اختياري</span></label>
+        <input id="branch-address" name="address" type="text" maxlength="200" placeholder="مسقط، سلطنة عُمان" value="{{ values.address }}">
+      </div>
+    </div>
+    <label class="toggle-row">
+      <input type="checkbox" name="is_active" value="1" {{ 'checked' if values.is_active else '' }}>
+      <span class="toggle-copy"><strong>الفرع نشط</strong><small>إيقاف الفرع يمنع موظفيه من الدخول إلى بوابة الفرع، ويُنهي جلساتهم الحالية.</small></span>
+    </label>
+    <div class="form-actions">
+      <a class="btn btn-ghost" href="{{ url_for('admin.branches') }}">إلغاء</a>
+      <button class="btn btn-primary" type="submit">{{ icon('check', 17) }} {{ 'حفظ التعديلات' if branch else 'إنشاء الفرع' }}</button>
+    </div>
+  </section>
+</form>
+{% endblock %}

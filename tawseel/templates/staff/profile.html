@@ -1,0 +1,61 @@
+{% extends "staff/base.html" %}
+{% from "_macros.html" import icon %}
+{% block staff_content %}
+<div class="admin-page-head">
+  <div>
+    <span class="eyebrow">الحساب</span>
+    <h2>ملفي</h2>
+    <p>بيانات حسابك في بوابة الفرع وإعدادات كلمة المرور.</p>
+  </div>
+</div>
+
+<div class="admin-detail-grid">
+  <div class="admin-detail-main">
+    <section class="panel">
+      <div class="panel-head"><div><h2>تغيير كلمة المرور</h2><p>استخدم كلمة مرور قوية لا تقل عن 10 أحرف.</p></div></div>
+      <form method="post" class="stack-form" data-loading>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+          <div class="field field-wide">
+            <label for="current-password">كلمة المرور الحالية</label>
+            <input id="current-password" name="current_password" type="password" required autocomplete="current-password" dir="ltr">
+          </div>
+          <div class="field">
+            <label for="new-password">كلمة المرور الجديدة</label>
+            <input id="new-password" name="new_password" type="password" required minlength="10" autocomplete="new-password" dir="ltr">
+          </div>
+          <div class="field">
+            <label for="confirm-password">تأكيد كلمة المرور</label>
+            <input id="confirm-password" name="confirm_password" type="password" required minlength="10" autocomplete="new-password" dir="ltr">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">{{ icon('lock', 17) }} حفظ كلمة المرور</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <aside class="admin-detail-side">
+    <div class="panel">
+      <div class="panel-head"><div><h2>بيانات الحساب</h2></div></div>
+      <div class="staff-profile-head">
+        <span class="avatar">{{ staff.name[:1] if staff else current_staff.name[:1] }}</span>
+        <div><strong>{{ staff.name if staff else current_staff.name }}</strong><small>{{ (staff.role if staff else current_staff.role)|staff_role }}</small></div>
+      </div>
+      <dl class="summary-list">
+        <div><dt>البريد الإلكتروني</dt><dd dir="ltr">{{ staff.email if staff else current_staff.email }}</dd></div>
+        <div><dt>الهاتف</dt><dd dir="ltr">{{ staff.phone|phone if staff and staff.phone else '—' }}</dd></div>
+        <div><dt>الفرع</dt><dd>{{ staff.branch_name if staff else current_staff.branch_name }}</dd></div>
+        <div><dt>كود الفرع</dt><dd dir="ltr">{{ staff.branch_code if staff else current_staff.branch_code }}</dd></div>
+        <div><dt>آخر دخول</dt><dd>{{ staff.last_login_at|datetime if staff and staff.last_login_at else '—' }}</dd></div>
+      </dl>
+    </div>
+    <div class="panel side-note">
+      <span class="feature-icon">{{ icon('shield', 21) }}</span>
+      <h3>أمان الحساب</h3>
+      <p>لا تشارك بيانات الدخول مع أي شخص. عند تغيير كلمة المرور يتم إنهاء الجلسات الأخرى المفتوحة على حسابك.</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

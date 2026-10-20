@@ -1,0 +1,60 @@
+{% extends "staff/base.html" %}
+{% from "_macros.html" import icon, status_badge, pagination_nav, empty_state %}
+{% block staff_content %}
+<div class="admin-page-head">
+  <div>
+    <span class="eyebrow">العمليات</span>
+    <h2>شحنات الفرع</h2>
+    <p>كل الشحنات المسندة إلى {{ current_staff.branch_name }}. افتح الشحنة لتحديث حالتها وإضافة حدث تتبع.</p>
+  </div>
+  <span class="staff-count-pill">{{ total }} شحنة</span>
+</div>
+
+<form method="get" class="filter-bar" data-loading>
+  <div class="field grow">
+    <label class="sr-only" for="staff-shipment-search">بحث</label>
+    <input id="staff-shipment-search" name="q" type="search" value="{{ q }}" placeholder="ابحث بالكود، العميل، الهاتف، أو المدينة...">
+  </div>
+  <div class="field">
+    <label class="sr-only" for="staff-status-filter">الحالة</label>
+    <select id="staff-status-filter" name="status">
+      <option value="">كل الحالات</option>
+      {% set statuses = [('pending','قيد التسجيل'),('picked_up','تم الاستلام'),('in_transit','قيد النقل'),('out_for_delivery','قيد التوصيل'),('delivered','تم التوصيل'),('on_hold','معلّقة'),('cancelled','ملغاة')] %}
+      {% for value, label in statuses %}
+        <option value="{{ value }}" {{ 'selected' if status == value else '' }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-ghost" type="submit">{{ icon('search', 17) }} تصفية</button>
+  {% if q or status %}<a class="btn btn-ghost" href="{{ url_for('staff.shipments') }}">إعادة ضبط</a>{% endif %}
+</form>
+
+<section class="panel">
+  <div class="panel-head">
+    <div><h2>القائمة</h2><p>{{ total }} شحنة ضمن نطاق فرعك.</p></div>
+  </div>
+  {% if shipments %}
+    <div class="table-wrap">
+      <table class="data-table staff-table">
+        <caption class="sr-only">شحنات الفرع</caption>
+        <thead><tr><th scope="col">الشحنة</th><th scope="col">العميل</th><th scope="col">المسار</th><th scope="col">الحالة</th><th scope="col">آخر تحديث</th><th scope="col"><span class="sr-only">إجراء</span></th></tr></thead>
+        <tbody>
+          {% for shipment in shipments %}
+            <tr>
+              <td><a class="code-link" href="{{ url_for('staff.shipment_detail', shipment_id=shipment.id) }}">{{ shipment.code }}</a></td>
+              <td>{{ shipment.customer_name or '—' }}</td>
+              <td>{{ shipment.origin }} <span class="arrow-sep">←</span> {{ shipment.destination }}</td>
+              <td>{{ status_badge(shipment.status) }}</td>
+              <td class="nowrap">{{ shipment.updated_at|datetime }}</td>
+              <td><a class="btn btn-ghost btn-sm" href="{{ url_for('staff.shipment_detail', shipment_id=shipment.id) }}">فتح وتحديث</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ pagination_nav(pagination, page_url) }}
+  {% else %}
+    {{ empty_state('لا توجد نتائج', 'جرّب تغيير كلمة البحث أو الحالة، أو تواصل مع مدير النظام لإسناد شحنات إلى فرعك.') }}
+  {% endif %}
+</section>
+{% endblock %}

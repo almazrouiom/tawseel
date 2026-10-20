@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block content %}
+<section class="portal-section">
+  <div class="container portal-grid">
+    <aside class="portal-side" aria-label="قائمة الحساب">
+      <div class="portal-user">
+        <span class="avatar">{{ current_user.name[:1] }}</span>
+        <div>
+          <strong>{{ current_user.name }}</strong>
+          <small dir="ltr">{{ current_user.phone|phone }}</small>
+        </div>
+      </div>
+      <nav class="portal-nav">
+        <a href="{{ url_for('customer.dashboard') }}" class="{{ 'is-active' if current_path in ['/dashboard', '/dashboard/'] else '' }}">{{ icon('grid', 19) }} نظرة عامة</a>
+        <a href="{{ url_for('customer.shipments') }}" class="{{ 'is-active' if current_path.startswith('/dashboard/shipments') else '' }}">{{ icon('package', 19) }} شحناتي</a>
+        <a href="{{ url_for('customer.notifications') }}" class="{{ 'is-active' if current_path.startswith('/dashboard/notifications') else '' }}">{{ icon('bell', 19) }} الإشعارات {% if unread_notifications %}<span class="nav-badge">{{ unread_notifications }}</span>{% endif %}</a>
+        <a href="{{ url_for('customer.profile') }}" class="{{ 'is-active' if current_path == '/dashboard/profile' else '' }}">{{ icon('user', 19) }} بيانات الحساب</a>
+      </nav>
+      <form method="post" action="{{ url_for('auth.logout') }}" class="portal-logout">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="link-button">{{ icon('logout', 18) }} تسجيل الخروج</button>
+      </form>
+    </aside>
+    <div class="portal-main">
+      {% block portal_content %}{% endblock %}
+    </div>
+  </div>
+</section>
+{% endblock %}

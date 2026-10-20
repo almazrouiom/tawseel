@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block content %}
+{% set form_values = values|default({}) %}
+<section class="auth-section">
+  <div class="container auth-grid">
+    <div class="auth-aside">
+      <span class="eyebrow eyebrow-light">{{ 'مرحباً بعودتك' if mode == 'login' else 'حساب جديد' }}</span>
+      <h1>{{ 'تابع شحناتك من مكان واحد' if mode == 'login' else 'أنشئ حسابك في دقيقة' }}</h1>
+      <p>بوابة توصيل تمنحك رؤية أوضح لشحناتك: الحالة، آخر تحديث، والإشعارات المهمة.</p>
+      <ul class="auth-benefits">
+        <li>{{ icon('package', 20) }} كل شحناتك في لوحة واحدة</li>
+        <li>{{ icon('bell', 20) }} إشعارات عند تغير حالة الشحنة</li>
+        <li>{{ icon('shield', 20) }} دخول آمن برمز تحقق عبر SMS</li>
+      </ul>
+      <div class="auth-help">
+        <span>{{ icon('phone', 19) }}</span>
+        <div><strong>تحتاج مساعدة؟</strong><p><a href="{{ url_for('public.contact') }}">تواصل مع فريق توصيل</a></p></div>
+      </div>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-tabs" role="tablist" aria-label="دخول أو إنشاء حساب">
+        <a href="{{ url_for('auth.login', next=next_url) }}" class="{{ 'is-active' if mode == 'login' else '' }}" role="tab" aria-selected="{{ 'true' if mode == 'login' else 'false' }}">تسجيل الدخول</a>
+        <a href="{{ url_for('auth.register', next=next_url) }}" class="{{ 'is-active' if mode == 'register' else '' }}" role="tab" aria-selected="{{ 'true' if mode == 'register' else 'false' }}">إنشاء حساب</a>
+      </div>
+
+      {% if mode == 'login' %}
+        <div class="auth-head">
+          <h2>تسجيل الدخول</h2>
+          <p>أدخل رقم هاتفك وسنرسل لك رمز تحقق لمرة واحدة.</p>
+        </div>
+        <form method="post" class="stack-form" data-loading>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="next" value="{{ next_url }}">
+          <div class="field">
+            <label for="login-phone">رقم الهاتف</label>
+            <input id="login-phone" name="phone" type="tel" required maxlength="20" inputmode="tel" autocomplete="tel"
+                   dir="ltr" placeholder="+968 9xxx xxxx" value="{{ form_values.get('phone', phone|default('')) }}" autofocus>
+            <small class="field-hint">يمكنك إدخال الرقم المحلي (8 أرقام) أو مع رمز الدولة.</small>
+          </div>
+          <button class="btn btn-primary btn-lg btn-block" type="submit">إرسال رمز التحقق {{ icon('arrow-left', 18) }}</button>
+        </form>
+        <p class="auth-switch">ليس لديك حساب؟ <a href="{{ url_for('auth.register', phone=form_values.get('phone', phone|default('')), next=next_url) }}">أنشئ حساباً جديداً</a></p>
+      {% else %}
+        <div class="auth-head">
+          <h2>إنشاء حساب</h2>
+          <p>سجّل بياناتك الأساسية، ثم أكّد رقم هاتفك برمز SMS.</p>
+        </div>
+        <form method="post" class="stack-form" data-loading>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="next" value="{{ next_url }}">
+          <div class="field">
+            <label for="register-name">الاسم الكامل</label>
+            <input id="register-name" name="name" type="text" required maxlength="80" autocomplete="name" value="{{ form_values.get('name', '') }}" autofocus>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label for="register-phone">رقم الهاتف</label>
+              <input id="register-phone" name="phone" type="tel" required maxlength="20" inputmode="tel" autocomplete="tel" dir="ltr" placeholder="+968 9xxx xxxx" value="{{ form_values.get('phone', phone|default('')) }}">
+            </div>
+            <div class="field">
+              <label for="register-email">البريد الإلكتروني <span class="optional">اختياري</span></label>
+              <input id="register-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr" value="{{ form_values.get('email', '') }}">
+            </div>
+          </div>
+          <div class="field">
+            <label for="register-company">الشركة / المتجر <span class="optional">اختياري</span></label>
+            <input id="register-company" name="company" type="text" maxlength="120" autocomplete="organization" value="{{ form_values.get('company', '') }}">
+          </div>
+          <button class="btn btn-primary btn-lg btn-block" type="submit">إنشاء الحساب {{ icon('arrow-left', 18) }}</button>
+        </form>
+        <p class="auth-switch">لديك حساب بالفعل؟ <a href="{{ url_for('auth.login', phone=form_values.get('phone', ''), next=next_url) }}">تسجيل الدخول</a></p>
+      {% endif %}
+
+      <div class="auth-security">
+        {{ icon('lock', 16) }}
+        <span>لن نستخدم رقمك للإعلانات. يُستخدم للتحقق وتحديثات الشحنات فقط.</span>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

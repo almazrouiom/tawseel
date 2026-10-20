@@ -1,0 +1,79 @@
+{% extends "staff/base.html" %}
+{% from "_macros.html" import icon, status_badge, empty_state %}
+{% block staff_content %}
+<div class="admin-page-head">
+  <div>
+    <span class="eyebrow">بوابة الفرع</span>
+    <h2>مرحباً، {{ current_staff.name }}</h2>
+    <p>هذه نظرة سريعة على شحنات {{ current_staff.branch_name }} وما يحتاج إلى متابعة اليوم.</p>
+  </div>
+  <div class="panel-actions">
+    <a class="btn btn-primary" href="{{ url_for('staff.shipments') }}">{{ icon('package', 17) }} شحنات الفرع</a>
+  </div>
+</div>
+
+<div class="admin-stat-grid staff-stat-grid">
+  <div class="admin-stat"><span class="stat-icon tone-blue">{{ icon('package', 22) }}</span><div><strong>{{ stats.total }}</strong><span>إجمالي شحنات الفرع</span></div></div>
+  <div class="admin-stat"><span class="stat-icon tone-orange">{{ icon('truck', 22) }}</span><div><strong>{{ stats.active }}</strong><span>شحنات نشطة</span></div></div>
+  <div class="admin-stat"><span class="stat-icon tone-navy">{{ icon('pin', 22) }}</span><div><strong>{{ stats.out_for_delivery }}</strong><span>قيد التوصيل</span></div></div>
+  <div class="admin-stat"><span class="stat-icon tone-green">{{ icon('check', 22) }}</span><div><strong>{{ stats.delivered }}</strong><span>تم توصيلها</span></div></div>
+</div>
+
+<div class="admin-columns">
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>أحدث شحنات الفرع</h2><p>آخر الشحنات التي تم تحديثها.</p></div>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('staff.shipments') }}">عرض الكل</a>
+    </div>
+    {% if recent_shipments %}
+      <div class="table-wrap">
+        <table class="data-table staff-table">
+          <caption class="sr-only">أحدث شحنات الفرع</caption>
+          <thead><tr><th scope="col">الشحنة</th><th scope="col">العميل</th><th scope="col">المسار</th><th scope="col">الحالة</th><th scope="col">آخر تحديث</th><th scope="col"><span class="sr-only">إجراء</span></th></tr></thead>
+          <tbody>
+            {% for shipment in recent_shipments %}
+              <tr>
+                <td><a class="code-link" href="{{ url_for('staff.shipment_detail', shipment_id=shipment.id) }}">{{ shipment.code }}</a></td>
+                <td>{{ shipment.customer_name or '—' }}</td>
+                <td>{{ shipment.origin }} <span class="arrow-sep">←</span> {{ shipment.destination }}</td>
+                <td>{{ status_badge(shipment.status) }}</td>
+                <td class="nowrap">{{ shipment.updated_at|date }}</td>
+                <td><a class="btn btn-ghost btn-sm" href="{{ url_for('staff.shipment_detail', shipment_id=shipment.id) }}">تحديث</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {{ empty_state('لا توجد شحنات مسندة إلى فرعك', 'سيظهر هنا أي شحنة يعيّنها مدير النظام إلى فرعك.') }}
+    {% endif %}
+  </section>
+
+  <aside class="admin-detail-side staff-dashboard-side">
+    <section class="panel staff-branch-card">
+      <div class="panel-head"><div><h2>بيانات الفرع</h2><p>النطاق التشغيلي لحسابك.</p></div></div>
+      <div class="staff-branch-hero">
+        <span class="feature-icon">{{ icon('pin', 22) }}</span>
+        <div><strong>{{ current_staff.branch_name }}</strong><small dir="ltr">{{ current_staff.branch_code }}</small></div>
+      </div>
+      <dl class="summary-list">
+        <div><dt>المدينة</dt><dd>{{ current_staff.branch_city or '—' }}</dd></div>
+        <div><dt>هاتف الفرع</dt><dd dir="ltr">{{ current_staff.branch_phone|phone if current_staff.branch_phone else '—' }}</dd></div>
+        <div><dt>دورك</dt><dd>{{ current_staff.role|staff_role }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><h2>فريق الفرع</h2><p>{{ team|length }} موظف نشط.</p></div></div>
+      <ul class="staff-team-list">
+        {% for member in team %}
+          <li>
+            <span class="avatar small">{{ member.name[:1] }}</span>
+            <div><strong>{{ member.name }}{% if member.email == current_staff.email %} <small class="muted">(أنت)</small>{% endif %}</strong><small>{{ member.role|staff_role }}</small></div>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </aside>
+</div>
+{% endblock %}

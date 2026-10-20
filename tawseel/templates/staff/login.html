@@ -1,0 +1,60 @@
+{% from "_macros.html" import icon, flash_messages %}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="تسجيل دخول موظفي فروع {{ settings.company_name }}.">
+  <title>{{ page_title }} | {{ settings.company_name }}</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='media/logos/favicon-32x32.png') }}">
+  <link rel="stylesheet" href="{{ asset_url('fonts/fonts.css') }}">
+  <link rel="stylesheet" href="{{ asset_url('local/site.css') }}">
+  <link rel="stylesheet" href="{{ asset_url('local/admin.css') }}">
+  <link rel="stylesheet" href="{{ asset_url('local/staff.css') }}">
+  <script src="{{ asset_url('local/site.js') }}" defer></script>
+</head>
+<body class="admin-login-body staff-login-body">
+  {{ flash_messages() }}
+  <main class="admin-login-shell staff-login-shell">
+    <section class="admin-login-aside staff-login-aside">
+      <a class="admin-login-brand" href="{{ url_for('public.home') }}">
+        <div class="admin-login-mark">{{ icon('package', 22) }}</div>
+        <span><strong>{{ settings.company_name }}</strong><small>{{ settings.company_name_en }}</small></span>
+      </a>
+      <div>
+        <span class="eyebrow eyebrow-light">بوابة الموظفين</span>
+        <h1>شحنات فرعك، وتحديثاتها من مكان واحد.</h1>
+        <p>مساحة عمل مخصصة لموظفي الفروع لمتابعة الشحنات المسندة إلى فرعهم وتحديث حالات التسليم.</p>
+      </div>
+      <ul class="auth-benefits">
+        <li>{{ icon('pin', 20) }} شحنات فرعك فقط</li>
+        <li>{{ icon('truck', 20) }} تحديث الحالة وإضافة حدث تتبع</li>
+        <li>{{ icon('shield', 20) }} جلسة منفصلة عن حساب الإدارة</li>
+      </ul>
+    </section>
+    <section class="admin-login-card staff-login-card">
+      <a class="back-link" href="{{ url_for('public.home') }}">{{ icon('arrow-right', 17) }} العودة إلى الموقع</a>
+      <div class="auth-head">
+        <span class="eyebrow">دخول داخلي</span>
+        <h2>دخول الموظفين</h2>
+        <p>استخدم بيانات حساب الفرع التي أنشأها مدير النظام.</p>
+      </div>
+      <form method="post" class="stack-form" data-loading>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <div class="field">
+          <label for="staff-email">البريد الإلكتروني</label>
+          <input id="staff-email" name="email" type="email" required autocomplete="username" dir="ltr" value="{{ email }}" autofocus>
+        </div>
+        <div class="field">
+          <label for="staff-password">كلمة المرور</label>
+          <input id="staff-password" name="password" type="password" required autocomplete="current-password" dir="ltr">
+        </div>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">{{ icon('lock', 18) }} دخول بوابة الفرع</button>
+      </form>
+      <p class="login-footnote">هذه البوابة مخصصة لموظفي الفروع المصرح لهم فقط. إذا لم تملك حساباً، تواصل مع مدير النظام.</p>
+    </section>
+  </main>
+</body>
+</html>

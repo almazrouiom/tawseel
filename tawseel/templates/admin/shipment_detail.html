@@ -1,0 +1,205 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon, status_badge %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <a class="back-link" href="{{ url_for('admin.shipments') }}">{{ icon('arrow-right', 16) }} عودة للشحنات</a>
+    <div class="title-with-badge">
+      <h2 class="code-heading" dir="ltr">{{ shipment.code }}</h2>
+      {{ status_badge(shipment.status) }}
+    </div>
+    <p>آخر تحديث: {{ shipment.updated_at|datetime }}</p>
+  </div>
+  <div class="panel-actions">
+    <a class="btn btn-ghost" href="{{ url_for('public.track', code=shipment.code) }}" target="_blank" rel="noopener">{{ icon('search', 17) }} عرض التتبع العام</a>
+  </div>
+</div>
+
+<div class="admin-detail-grid">
+  <div class="admin-detail-main">
+    <section class="panel">
+      <div class="panel-head"><div><h2>بيانات الشحنة</h2><p>تعديل المسار والحالة والتفاصيل.</p></div></div>
+      <form method="post" action="{{ url_for('admin.shipment_edit', shipment_id=shipment.id) }}" class="stack-form" data-loading>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+          <div class="field">
+            <label for="edit-customer">العميل</label>
+            <select id="edit-customer" name="customer_id">
+              <option value="">بدون ربط بحساب</option>
+              {% for customer in customers %}
+                <option value="{{ customer.id }}" {{ 'selected' if shipment.customer_id == customer.id else '' }}>{{ customer.name }} — {{ customer.phone|phone }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="edit-branch">الفرع المسؤول</label>
+            <select id="edit-branch" name="branch_id">
+              <option value="">بدون إسناد لفرع</option>
+              {% for branch in branches %}
+                <option value="{{ branch.id }}" {{ 'selected' if shipment.branch_id == branch.id else '' }}>{{ branch.name }} — {{ branch.code }}{{ ' (موقوف)' if not branch.is_active else '' }}</option>
+              {% endfor %}
+            </select>
+            <small class="field-hint">تغيير الفرع يحدد أي فريق يمكنه متابعة الشحنة من بوابة الفرع.</small>
+          </div>
+          <div class="field">
+            <label for="edit-status">الحالة</label>
+            <select id="edit-status" name="status" required>
+              {% set statuses = [('pending','قيد التسجيل'),('picked_up','تم الاستلام'),('in_transit','قيد النقل'),('out_for_delivery','قيد التوصيل'),('delivered','تم التوصيل'),('on_hold','معلّقة'),('cancelled','ملغاة')] %}
+              {% for value, label in statuses %}
+                <option value="{{ value }}" {{ 'selected' if shipment.status == value else '' }}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            <small class="field-hint">تغيير الحالة هنا يضيف حدثاً تلقائياً ويُشعر العميل.</small>
+          </div>
+          <div class="field">
+            <label for="edit-service">نوع الخدمة</label>
+            <select id="edit-service" name="service_type" required>
+              {% set services = [('standard','توصيل قياسي'),('express','توصيل سريع'),('same_day','توصيل نفس اليوم'),('documents','توصيل مستندات'),('ecommerce','حلول المتاجر الإلكترونية')] %}
+              {% for value, label in services %}
+                <option value="{{ value }}" {{ 'selected' if shipment.service_type == value else '' }}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="edit-sender-name">اسم المرسل</label>
+            <input id="edit-sender-name" name="sender_name" type="text" maxlength="120" value="{{ shipment.sender_name or '' }}">
+          </div>
+          <div class="field">
+            <label for="edit-sender-phone">هاتف المرسل</label>
+            <input id="edit-sender-phone" name="sender_phone" type="tel" maxlength="20" dir="ltr" value="{{ shipment.sender_phone or '' }}">
+          </div>
+          <div class="field">
+            <label for="edit-origin">مدينة الإرسال</label>
+            <input id="edit-origin" name="origin" type="text" maxlength="80" required value="{{ shipment.origin }}">
+          </div>
+          <div class="field">
+            <label for="edit-destination">مدينة الوصول</label>
+            <input id="edit-destination" name="destination" type="text" maxlength="80" required value="{{ shipment.destination }}">
+          </div>
+          <div class="field">
+            <label for="edit-weight">الوزن (كجم)</label>
+            <input id="edit-weight" name="weight_kg" type="number" min="0" step="0.01" value="{{ shipment.weight_kg if shipment.weight_kg is not none else '' }}">
+          </div>
+          <div class="field">
+            <label for="edit-pieces">عدد القطع</label>
+            <input id="edit-pieces" name="pieces" type="number" min="1" max="10000" value="{{ shipment.pieces }}">
+          </div>
+          <div class="field">
+            <label for="edit-amount">المبلغ</label>
+            <input id="edit-amount" name="amount" type="number" min="0" step="0.001" value="{{ shipment.amount if shipment.amount is not none else '' }}">
+          </div>
+          <div class="field">
+            <label for="edit-currency">العملة</label>
+            <select id="edit-currency" name="currency">
+              <option value="OMR" {{ 'selected' if shipment.currency != 'USD' else '' }}>ريال عُماني (OMR)</option>
+              <option value="USD" {{ 'selected' if shipment.currency == 'USD' else '' }}>دولار أمريكي (USD)</option>
+            </select>
+          </div>
+          <div class="field field-wide">
+            <label for="edit-description">وصف الشحنة</label>
+            <textarea id="edit-description" name="description" rows="3" maxlength="1000">{{ shipment.description or '' }}</textarea>
+          </div>
+          <div class="field">
+            <label for="edit-location">موقع تحديث الحالة <span class="optional">اختياري</span></label>
+            <input id="edit-location" name="location" type="text" maxlength="120" placeholder="{{ shipment.destination }}">
+          </div>
+          <div class="field">
+            <label for="edit-note">ملاحظة تحديث الحالة <span class="optional">اختياري</span></label>
+            <input id="edit-note" name="note" type="text" maxlength="500">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">{{ icon('check', 17) }} حفظ التعديلات</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><h2>إضافة حدث تتبع</h2><p>سجّل مرحلة جديدة وأرسل إشعاراً للعميل.</p></div></div>
+      <form method="post" action="{{ url_for('admin.shipment_add_event', shipment_id=shipment.id) }}" class="stack-form" data-loading>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-grid">
+          <div class="field">
+            <label for="event-status">الحالة الجديدة</label>
+            <select id="event-status" name="event_status" required>
+              {% for value, label in statuses %}
+                <option value="{{ value }}" {{ 'selected' if shipment.status == value else '' }}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="event-at">وقت الحدث (توقيت عُمان)</label>
+            <input id="event-at" name="event_at" type="datetime-local" value="{{ now_value }}" required>
+          </div>
+          <div class="field">
+            <label for="event-location">الموقع</label>
+            <input id="event-location" name="event_location" type="text" maxlength="120" placeholder="مثال: مسقط">
+          </div>
+          <div class="field field-wide">
+            <label for="event-note">وصف الحدث</label>
+            <input id="event-note" name="event_note" type="text" maxlength="500" required placeholder="مثال: تم استلام الشحنة من المرسل.">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">{{ icon('plus', 17) }} إضافة الحدث</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><h2>سجل التتبع</h2><p>{{ events|length }} حدث مسجل.</p></div></div>
+      {% if events %}
+        <ol class="timeline admin-timeline">
+          {% for event in events %}
+            <li class="timeline-item {{ 'is-current' if loop.first else '' }}">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <span class="timeline-date">{{ event.event_at|datetime }}</span>
+                <h3>{{ event.note }}</h3>
+                <p>{{ status_meta(event.status).label }}{% if event.location %} — {{ event.location }}{% endif %}</p>
+              </div>
+            </li>
+          {% endfor %}
+        </ol>
+      {% else %}
+        <p class="muted">لا توجد أحداث مسجلة.</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <aside class="admin-detail-side">
+    <div class="panel">
+      <div class="panel-head"><div><h2>ملخص</h2></div></div>
+      <dl class="summary-list">
+        <div><dt>الكود</dt><dd dir="ltr">{{ shipment.code }}</dd></div>
+        <div><dt>الفرع</dt><dd>{{ shipment.branch_name or '—' }}</dd></div>
+        <div><dt>تاريخ الإنشاء</dt><dd>{{ shipment.created_at|datetime }}</dd></div>
+        <div><dt>آخر تحديث</dt><dd>{{ shipment.updated_at|datetime }}</dd></div>
+        <div><dt>تاريخ التسليم</dt><dd>{{ shipment.delivered_at|datetime if shipment.delivered_at else '—' }}</dd></div>
+        <div><dt>عدد القطع</dt><dd>{{ shipment.pieces }}</dd></div>
+        <div><dt>الوزن</dt><dd>{{ shipment.weight_kg|weight }}</dd></div>
+        <div><dt>المبلغ</dt><dd>{{ shipment.amount|money(shipment.currency) }}</dd></div>
+      </dl>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><div><h2>العميل</h2></div></div>
+      {% if shipment.customer_id %}
+        <div class="customer-mini">
+          <span class="avatar">{{ shipment.customer_name[:1] if shipment.customer_name else '؟' }}</span>
+          <div><strong>{{ shipment.customer_name }}</strong><small dir="ltr">{{ shipment.customer_phone|phone }}</small></div>
+        </div>
+        <a class="btn btn-ghost btn-block" href="{{ url_for('admin.customer_detail', user_id=shipment.customer_id) }}">عرض ملف العميل</a>
+      {% else %}
+        <p class="muted">هذه الشحنة غير مرتبطة بحساب عميل. يمكنك ربطها من نموذج التعديل.</p>
+      {% endif %}
+    </div>
+
+    <div class="panel side-note">
+      <span class="feature-icon">{{ icon('shield', 21) }}</span>
+      <h3>ملاحظة</h3>
+      <p>كل تغيير في الحالة أو إضافة حدث يُسجل في سجل النشاط ويُنشئ إشعاراً للعميل عند ربط الشحنة بحسابه.</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

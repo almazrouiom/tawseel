@@ -1,0 +1,61 @@
+{% extends "customer/base.html" %}
+{% from "_macros.html" import icon, status_badge, empty_state, pagination_nav %}
+{% block portal_content %}
+<div class="page-head">
+  <div>
+    <span class="eyebrow">شحناتي</span>
+    <h1>كل شحناتك في مكان واحد</h1>
+    <p>ابحث برقم الشحنة أو المدينة، وصفِّ النتائج حسب الحالة.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('public.contact', type='quote') }}">{{ icon('plus', 18) }} طلب شحنة</a>
+</div>
+
+<form method="get" class="filter-bar" data-loading>
+  <div class="field grow">
+    <label class="sr-only" for="shipment-search">بحث</label>
+    <input id="shipment-search" name="q" type="search" value="{{ q }}" placeholder="ابحث برقم الشحنة أو المدينة...">
+  </div>
+  <div class="field">
+    <label class="sr-only" for="status-filter">الحالة</label>
+    <select id="status-filter" name="status">
+      <option value="">كل الحالات</option>
+      {% set statuses = [('pending','قيد التسجيل'),('picked_up','تم الاستلام'),('in_transit','قيد النقل'),('out_for_delivery','قيد التوصيل'),('delivered','تم التوصيل'),('on_hold','معلّقة'),('cancelled','ملغاة')] %}
+      {% for value, label in statuses %}
+        <option value="{{ value }}" {{ 'selected' if status == value else '' }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit">{{ icon('search', 17) }} بحث</button>
+  {% if q or status %}<a class="btn btn-ghost" href="{{ url_for('customer.shipments') }}">مسح</a>{% endif %}
+</form>
+
+<section class="panel">
+  <div class="panel-head">
+    <div><h2>النتائج</h2><p>{{ total }} شحنة</p></div>
+    <span class="muted small">مرتبة من الأحدث</span>
+  </div>
+  {% if shipments %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <caption class="sr-only">قائمة الشحنات</caption>
+        <thead><tr><th scope="col">الشحنة</th><th scope="col">المسار</th><th scope="col">الخدمة</th><th scope="col">الحالة</th><th scope="col">التاريخ</th><th scope="col"><span class="sr-only">إجراء</span></th></tr></thead>
+        <tbody>
+          {% for shipment in shipments %}
+            <tr>
+              <td><a class="code-link" href="{{ url_for('customer.shipment_detail', code=shipment.code) }}">{{ shipment.code }}</a></td>
+              <td>{{ shipment.origin }} <span class="arrow-sep">←</span> {{ shipment.destination }}</td>
+              <td>{{ shipment.service_type|service }}</td>
+              <td>{{ status_badge(shipment.status) }}</td>
+              <td class="nowrap">{{ shipment.created_at|date }}</td>
+              <td><a class="btn btn-ghost btn-sm" href="{{ url_for('customer.shipment_detail', code=shipment.code) }}">تفاصيل</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ pagination_nav(pagination, page_url) }}
+  {% else %}
+    {{ empty_state('لا توجد نتائج', 'جرّب تغيير كلمة البحث أو الحالة، أو تواصل معنا لربط شحنة بحسابك.', url_for('public.contact'), 'تواصل معنا') }}
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: tawseel-logistics
+    runtime: python
+    plan: starter
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120 wsgi:app
+    healthCheckPath: /health
+    disk:
+      name: tawseel-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: APP_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: ADMIN_NAME
+        value: مدير الموقع
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: TRUST_PROXY
+        value: "1"
+      - key: SESSION_COOKIE_SECURE
+        value: "1"
+      - key: DEV_SHOW_OTP
+        value: "0"
+      - key: SEED_DEMO
+        value: "0"
+      - key: SMS_PROVIDER
+        value: twilio
+      - key: SMS_SENDER
+        value: Tawseel
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_FROM
+        sync: false

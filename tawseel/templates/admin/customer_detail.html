@@ -1,0 +1,71 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon, status_badge, empty_state %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <a class="back-link" href="{{ url_for('admin.customers') }}">{{ icon('arrow-right', 16) }} عودة للعملاء</a>
+    <h2>{{ customer.name }}</h2>
+    <p>عضو منذ {{ customer.created_at|datetime }}</p>
+  </div>
+  <form method="post" action="{{ url_for('admin.customer_toggle', user_id=customer.id) }}" data-confirm="هل تريد تغيير حالة هذا الحساب؟">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn {{ 'btn-danger-soft' if customer.is_active else 'btn-primary' }}" type="submit">
+      {{ icon('lock', 17) }} {{ 'إيقاف الحساب' if customer.is_active else 'تنشيط الحساب' }}
+    </button>
+  </form>
+</div>
+
+<div class="admin-detail-grid">
+  <div class="admin-detail-main">
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>شحنات العميل</h2><p>{{ shipments|length }} شحنة مرتبطة بالحساب.</p></div>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('admin.shipment_new') }}">{{ icon('plus', 16) }} شحنة</a>
+      </div>
+      {% if shipments %}
+        <div class="table-wrap">
+          <table class="data-table">
+            <caption class="sr-only">شحنات العميل</caption>
+            <thead><tr><th scope="col">الشحنة</th><th scope="col">المسار</th><th scope="col">الحالة</th><th scope="col">التاريخ</th><th scope="col"><span class="sr-only">إجراء</span></th></tr></thead>
+            <tbody>
+              {% for shipment in shipments %}
+                <tr>
+                  <td><a class="code-link" href="{{ url_for('admin.shipment_detail', shipment_id=shipment.id) }}">{{ shipment.code }}</a></td>
+                  <td>{{ shipment.origin }} <span class="arrow-sep">←</span> {{ shipment.destination }}</td>
+                  <td>{{ status_badge(shipment.status) }}</td>
+                  <td class="nowrap">{{ shipment.created_at|date }}</td>
+                  <td><a class="btn btn-ghost btn-sm" href="{{ url_for('admin.shipment_detail', shipment_id=shipment.id) }}">إدارة</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        {{ empty_state('لا توجد شحنات', 'لم يتم ربط أي شحنة بهذا العميل بعد.') }}
+      {% endif %}
+    </section>
+  </div>
+
+  <aside class="admin-detail-side">
+    <div class="panel">
+      <div class="panel-head"><div><h2>بيانات الحساب</h2></div></div>
+      <div class="customer-mini">
+        <span class="avatar">{{ customer.name[:1] }}</span>
+        <div><strong>{{ customer.name }}</strong><small dir="ltr">{{ customer.phone|phone }}</small></div>
+      </div>
+      <dl class="summary-list">
+        <div><dt>البريد</dt><dd>{{ customer.email or '—' }}</dd></div>
+        <div><dt>الشركة</dt><dd>{{ customer.company or '—' }}</dd></div>
+        <div><dt>تاريخ التسجيل</dt><dd>{{ customer.created_at|date }}</dd></div>
+        <div><dt>آخر دخول</dt><dd>{{ customer.last_login_at|datetime if customer.last_login_at else '—' }}</dd></div>
+        <div><dt>الحالة</dt><dd><span class="badge {{ 'badge-success' if customer.is_active else 'badge-danger' }}">{{ 'نشط' if customer.is_active else 'موقوف' }}</span></dd></div>
+      </dl>
+    </div>
+    <div class="panel side-note">
+      <span class="feature-icon">{{ icon('shield', 21) }}</span>
+      <h3>خصوصية العميل</h3>
+      <p>بيانات العملاء مخصصة لتنفيذ الخدمة. لا تشاركها خارج نطاق العمل، والتزم بسياسة الخصوصية.</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

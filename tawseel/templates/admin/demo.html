@@ -1,0 +1,248 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon, status_badge %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <span class="eyebrow">دليل الموظفين</span>
+    <h2>دليل التجربة للموظفين</h2>
+    <p>حسابات وشحنات وخطوات جاهزة لاختبار الموقع قبل التسليم أو لتدريب فريق العمل.</p>
+  </div>
+  <div class="panel-actions demo-no-print">
+    <button type="button" class="btn btn-ghost" data-print>{{ icon('document', 17) }} طباعة الصفحة</button>
+    <a class="btn btn-primary" href="{{ url_for('public.home') }}" target="_blank" rel="noopener">{{ icon('arrow-left', 17) }} فتح الموقع</a>
+  </div>
+</div>
+
+<div class="alert alert-warning demo-alert" role="note">
+  <span class="alert-icon">{{ icon('shield', 20) }}</span>
+  <span>
+    صفحة داخلية لفريق العمل فقط. لا تشارك بيانات الدخول أو رموز التحقق مع العملاء.
+    {% if config.IS_PRODUCTION %}لا تُعرض كلمة مرور الإدارة هنا في بيئة الإنتاج.{% endif %}
+  </span>
+</div>
+
+<div class="admin-quick demo-quick">
+  <a href="{{ url_for('public.home') }}" target="_blank" rel="noopener">
+    {{ icon('store', 21) }}
+    <span><strong>الموقع العام</strong><small>واجهة العملاء والصفحات التعريفية</small></span>
+  </a>
+  <a href="{{ url_for('auth.login') }}" target="_blank" rel="noopener">
+    {{ icon('user', 21) }}
+    <span><strong>بوابة العميل</strong><small>تسجيل الدخول برمز OTP</small></span>
+  </a>
+  <a href="{{ url_for('admin.dashboard') }}">
+    {{ icon('grid', 21) }}
+    <span><strong>لوحة الإدارة</strong><small>أنت الآن داخل لوحة الإدارة</small></span>
+  </a>
+  <a href="{{ url_for('public.track', code=active_shipment.code) if active_shipment else url_for('public.track') }}" target="_blank" rel="noopener">
+    {{ icon('search', 21) }}
+    <span><strong>تتبع شحنة</strong><small>{{ active_shipment.code if active_shipment else 'املأ رقم الشحنة للتجربة' }}</small></span>
+  </a>
+</div>
+
+<div class="demo-grid">
+  <div class="demo-stack">
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>بيانات الدخول</h2><p>استخدم هذه الحسابات لاختبار بوابة العميل ولوحة الإدارة.</p></div>
+        <span class="badge badge-info">حسابات تجريبية</span>
+      </div>
+      <div class="demo-panel-body">
+        <div class="demo-account-head">
+          <span class="avatar small">{{ current_admin.name[:1] }}</span>
+          <div><strong>{{ current_admin.name }}</strong><small>مدير النظام</small></div>
+        </div>
+        <dl class="demo-credentials">
+          <div class="demo-credential">
+            <dt>بريد الإدارة</dt>
+            <dd>
+              <code dir="ltr">{{ current_admin.email }}</code>
+              <button class="demo-copy" type="button" data-copy="{{ current_admin.email }}" aria-label="نسخ بريد الإدارة">{{ icon('document', 14) }} نسخ</button>
+            </dd>
+          </div>
+          <div class="demo-credential">
+            <dt>كلمة المرور</dt>
+            <dd>
+              {% if demo_password %}
+                <code dir="ltr">{{ demo_password }}</code>
+                <button class="demo-copy" type="button" data-copy="{{ demo_password }}" aria-label="نسخ كلمة مرور الإدارة">{{ icon('document', 14) }} نسخ</button>
+              {% elif config.IS_PRODUCTION %}
+                <span class="demo-muted">تُدار من إعدادات الأمان ولا تُعرض هنا.</span>
+              {% else %}
+                <span class="demo-muted">تم تغيير كلمة المرور الافتراضية — اطلبها من مسؤول النظام.</span>
+              {% endif %}
+            </dd>
+          </div>
+        </dl>
+        <p class="demo-help">غيّر كلمة المرور قبل الإطلاق من <a href="{{ url_for('admin.password') }}">إعدادات كلمة المرور</a>.</p>
+
+        <div class="demo-section-head">
+          <h3 class="demo-subtitle">حسابات العملاء</h3>
+          <a class="text-link" href="{{ url_for('auth.login') }}" target="_blank" rel="noopener">فتح بوابة العميل</a>
+        </div>
+        {% if demo_customers %}
+          <div class="demo-customers">
+            {% for customer in demo_customers %}
+              <div class="demo-customer">
+                <div class="demo-customer-id">
+                  <span class="avatar small">{{ customer.name[:1] }}</span>
+                  <div><strong>{{ customer.name }}</strong><small>{{ customer.company or 'حساب تجريبي' }}</small></div>
+                </div>
+                <div class="demo-customer-phone">
+                  <code dir="ltr">{{ customer.phone|phone }}</code>
+                  <button class="demo-copy" type="button" data-copy="{{ customer.phone }}" aria-label="نسخ رقم {{ customer.name }}">{{ icon('document', 14) }} نسخ</button>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="demo-help">لا توجد حسابات تجريبية مطابقة في قاعدة البيانات الحالية. يمكنك إنشاء حساب عميل جديد أو استخدام حساب موجود.</p>
+        {% endif %}
+        <p class="demo-help">
+          {% if allow_dev_otp %}
+            في وضع التطوير يظهر رمز التحقق في صفحة <span dir="ltr">/verify</span> بعد إدخال رقم العميل.
+          {% else %}
+            يُرسل رمز التحقق إلى رقم العميل عبر مزوّد الرسائل المهيأ.
+          {% endif %}
+        </p>
+
+        <div class="demo-section-head">
+          <h3 class="demo-subtitle">حساب موظف الفرع</h3>
+          <a class="text-link" href="{{ url_for('staff.login') }}" target="_blank" rel="noopener">فتح بوابة الفرع</a>
+        </div>
+        {% if demo_staff %}
+          <div class="demo-account-head">
+            <span class="avatar small">{{ demo_staff.name[:1] }}</span>
+            <div><strong>{{ demo_staff.name }}</strong><small>{{ demo_staff.role|staff_role }} — {{ demo_staff.branch_name }}</small></div>
+          </div>
+          <dl class="demo-credentials">
+            <div class="demo-credential">
+              <dt>بريد الموظف</dt>
+              <dd>
+                <code dir="ltr">{{ demo_staff.email }}</code>
+                <button class="demo-copy" type="button" data-copy="{{ demo_staff.email }}" aria-label="نسخ بريد الموظف">{{ icon('document', 14) }} نسخ</button>
+              </dd>
+            </div>
+            <div class="demo-credential">
+              <dt>كلمة المرور</dt>
+              <dd>
+                {% if demo_staff_password %}
+                  <code dir="ltr">{{ demo_staff_password }}</code>
+                  <button class="demo-copy" type="button" data-copy="{{ demo_staff_password }}" aria-label="نسخ كلمة مرور الموظف">{{ icon('document', 14) }} نسخ</button>
+                {% elif config.IS_PRODUCTION %}
+                  <span class="demo-muted">تُدار من إدارة الموظفين ولا تُعرض هنا.</span>
+                {% else %}
+                  <span class="demo-muted">تم تغيير كلمة المرور — اطلبها من مدير النظام.</span>
+                {% endif %}
+              </dd>
+            </div>
+            <div class="demo-credential">
+              <dt>الفرع</dt>
+              <dd><span>{{ demo_staff.branch_name }} <small class="muted" dir="ltr">({{ demo_staff.branch_code }})</small></span></dd>
+            </div>
+          </dl>
+          <p class="demo-help">يمكن لمدير النظام إنشاء حسابات إضافية من <a href="{{ url_for('admin.staff_list') }}">إدارة الموظفين</a> وإسنادهم إلى الفروع.</p>
+        {% else %}
+          <p class="demo-help">لا يوجد حساب موظف فرع تجريبي بعد. أنشئ حساباً من <a href="{{ url_for('admin.staff_new') }}">إدارة الموظفين</a> ثم ارجع إلى هذه الصفحة.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>الشحنات التجريبية</h2><p>استخدمها لتجربة التتبع وتحديث الحالات والإشعارات.</p></div>
+        <a class="text-link" href="{{ url_for('admin.shipments') }}">إدارة الشحنات</a>
+      </div>
+      {% if demo_shipments %}
+        <ul class="demo-shipment-list">
+          {% for shipment in demo_shipments %}
+            <li class="demo-shipment">
+              <div class="demo-shipment-main">
+                <div class="demo-shipment-head">
+                  <code>{{ shipment.code }}</code>
+                  {{ status_badge(shipment.status) }}
+                </div>
+                <p>{{ shipment.origin }} <span class="arrow-sep">←</span> {{ shipment.destination }} · {{ shipment.service_type|service }} · {{ shipment.customer_name }}</p>
+              </div>
+              <div class="demo-shipment-actions">
+                <button class="demo-copy" type="button" data-copy="{{ shipment.code }}" aria-label="نسخ رقم الشحنة {{ shipment.code }}">{{ icon('document', 14) }} نسخ</button>
+                <a class="btn btn-ghost btn-sm" href="{{ url_for('public.track', code=shipment.code) }}" target="_blank" rel="noopener">تتبع</a>
+                <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.shipment_detail', shipment_id=shipment.id) }}">إدارة</a>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="demo-panel-body">
+          <p class="demo-help">لا توجد شحنات مرتبطة بالحسابات التجريبية. أنشئ شحنة جديدة من لوحة الإدارة ثم ارجع إلى هذه الصفحة.</p>
+        </div>
+      {% endif %}
+    </section>
+  </div>
+
+  <aside class="demo-aside">
+    <section class="panel">
+      <div class="panel-head"><div><h2>خطوات التجربة</h2><p>مسار سريع من سبع خطوات.</p></div></div>
+      <div class="demo-panel-body">
+        <ol class="demo-steps">
+          <li>افتح <a href="{{ url_for('public.home') }}" target="_blank" rel="noopener">الموقع العام</a> وتأكد من عمل الصفحات الرئيسية والخدمات.</li>
+          <li>
+            سجّل الدخول من <a href="{{ url_for('auth.login') }}" target="_blank" rel="noopener">بوابة العميل</a>
+            {% if demo_customers %}بالرقم <code dir="ltr">{{ demo_customers[0].phone }}</code>{% else %}برقم عميل تجريبي{% endif %}.
+          </li>
+          <li>أدخل رمز OTP {% if allow_dev_otp %}الظاهر في صفحة التحقق{% else %}المرسل عبر SMS{% endif %} ثم افتح لوحة العميل.</li>
+          <li>
+            {% if active_shipment %}
+              افتح شحنة <a href="{{ url_for('admin.shipment_detail', shipment_id=active_shipment.id) }}">{{ active_shipment.code }}</a> وحدّث حالتها من لوحة الإدارة.
+            {% else %}
+              أنشئ شحنة من <a href="{{ url_for('admin.shipment_new') }}">شحنة جديدة</a> وحدّث حالتها.
+            {% endif %}
+          </li>
+          <li>ارجع إلى <a href="{{ url_for('customer.notifications') }}">إشعارات العميل</a> وتأكد من وصول إشعار التحديث.</li>
+          <li>سجّل الدخول من <a href="{{ url_for('staff.login') }}" target="_blank" rel="noopener">بوابة الفرع</a> بحساب الموظف التجريبي وحدّث شحنة، ثم تحقق من ظهورها في لوحة الإدارة.</li>
+          <li>أرسل طلباً من <a href="{{ url_for('public.contact') }}" target="_blank" rel="noopener">صفحة التواصل</a> وتأكد من ظهوره في <a href="{{ url_for('admin.requests_list') }}">طلبات التواصل</a>.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><h2>حالة البيئة</h2><p>الإعدادات المؤثرة في التجربة.</p></div></div>
+      <div class="demo-panel-body">
+        <dl class="demo-meta">
+          <div>
+            <dt>وضع التشغيل</dt>
+            <dd><span class="badge {{ 'badge-warning' if config.IS_PRODUCTION else 'badge-info' }}">{{ 'إنتاج' if config.IS_PRODUCTION else 'تطوير' }}</span></dd>
+          </div>
+          <div>
+            <dt>مزوّد SMS</dt>
+            <dd dir="ltr">{{ sms_provider() }}</dd>
+          </div>
+          <div>
+            <dt>حالة الإرسال</dt>
+            <dd>
+              {% if sms_ready() %}<span class="badge badge-success">مهيأ</span>{% else %}<span class="badge badge-warning">غير مهيأ</span>{% endif %}
+            </dd>
+          </div>
+          <div>
+            <dt>OTP التجريبي</dt>
+            <dd>{{ 'ظاهر' if allow_dev_otp else 'مخفي' }}</dd>
+          </div>
+        </dl>
+        <p class="demo-help">راجع <a href="{{ url_for('public.health') }}">فحص النظام</a> للتأكد من قاعدة البيانات وحالة مزوّد الرسائل.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><h2>ملاحظات مهمة</h2><p>قبل مشاركة الموقع مع العملاء.</p></div></div>
+      <div class="demo-panel-body">
+        <ul class="demo-note-list">
+          <li>هذه الصفحة متاحة لمديري النظام فقط، ولا تظهر في الموقع العام.</li>
+          <li>بيانات الشحنات تجريبية وقابلة للتغيير أثناء الاختبار.</li>
+          <li>لا تشارك كلمة مرور الإدارة أو رموز OTP مع أي عميل.</li>
+          <li>قبل الإطلاق: غيّر كلمة المرور، وأوقف البيانات التجريبية وOTP التطوير، واضبط مزوّد SMS الحقيقي.</li>
+        </ul>
+      </div>
+    </section>
+  </aside>
+</div>
+{% endblock %}

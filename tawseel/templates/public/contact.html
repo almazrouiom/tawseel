@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block content %}
+<section class="page-hero compact">
+  <div class="container page-hero-inner">
+    <span class="eyebrow eyebrow-light">تواصل معنا</span>
+    <h1>كيف نقدر نساعدك؟</h1>
+    <p>اطلب عرض سعر أو أرسل استفسارك، وسيتواصل معك فريق توصيل في أقرب وقت.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container contact-grid">
+    <div class="contact-card">
+      {% if request.args.get('success') %}
+        <div class="success-panel">
+          <span class="success-icon">{{ icon('check', 30) }}</span>
+          <div>
+            <h2>وصلنا طلبك</h2>
+            <p>شكراً لتواصلك مع توصيل. سيراجع الفريق طلبك ويتواصل معك عبر رقم الهاتف أو البريد الذي أدخلته.</p>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="form-head">
+        <h2>أرسل تفاصيل طلبك</h2>
+        <p>كل الحقول المعلّمة مطلوبة إلا إذا ذُكر خلاف ذلك.</p>
+      </div>
+
+      <form method="post" class="stack-form" data-loading data-contact-form>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="hp-field" aria-hidden="true">
+          <label for="website">Website</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <fieldset class="segmented" aria-label="نوع الطلب">
+          <label>
+            <input type="radio" name="kind" value="contact" {{ 'checked' if values.get('kind', 'contact') != 'quote' else '' }}>
+            <span>استفسار عام</span>
+          </label>
+          <label>
+            <input type="radio" name="kind" value="quote" {{ 'checked' if values.get('kind') == 'quote' else '' }}>
+            <span>طلب عرض سعر</span>
+          </label>
+        </fieldset>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="name">الاسم الكامل</label>
+            <input id="name" name="name" type="text" required maxlength="80" autocomplete="name" value="{{ values.get('name', '') }}">
+          </div>
+          <div class="field">
+            <label for="phone">رقم الهاتف</label>
+            <input id="phone" name="phone" type="tel" required maxlength="20" inputmode="tel" autocomplete="tel" dir="ltr" placeholder="+968 9xxx xxxx" value="{{ values.get('phone', '') }}">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="email">البريد الإلكتروني <span class="optional">اختياري</span></label>
+            <input id="email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr" value="{{ values.get('email', '') }}">
+          </div>
+          <div class="field">
+            <label for="company">الشركة / المتجر <span class="optional">اختياري</span></label>
+            <input id="company" name="company" type="text" maxlength="120" autocomplete="organization" value="{{ values.get('company', '') }}">
+          </div>
+        </div>
+
+        <div class="quote-fields" data-quote-fields>
+          <div class="form-row">
+            <div class="field">
+              <label for="origin">مدينة الإرسال</label>
+              <input id="origin" name="origin" type="text" maxlength="80" placeholder="مثال: مسقط" value="{{ values.get('origin', '') }}">
+            </div>
+            <div class="field">
+              <label for="destination">مدينة الوصول</label>
+              <input id="destination" name="destination" type="text" maxlength="80" placeholder="مثال: صلالة" value="{{ values.get('destination', '') }}">
+            </div>
+          </div>
+          <div class="field">
+            <label for="weight">الوزن التقريبي <span class="optional">اختياري</span></label>
+            <input id="weight" name="weight" type="text" maxlength="40" placeholder="مثال: 5 كجم أو 3 طرود" value="{{ values.get('weight', '') }}">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="message">تفاصيل الطلب</label>
+          <textarea id="message" name="message" rows="5" required minlength="5" maxlength="2000" placeholder="أخبرنا عن الشحنة أو الاستفسار...">{{ values.get('message', '') }}</textarea>
+        </div>
+
+        <div class="form-foot">
+          <button class="btn btn-primary btn-lg" type="submit">إرسال الطلب {{ icon('arrow-left', 18) }}</button>
+          <p class="form-note">{{ icon('lock', 15) }} بياناتك تُستخدم للرد على طلبك فقط.</p>
+        </div>
+      </form>
+    </div>
+
+    <aside class="contact-side">
+      <div class="side-card">
+        <h3>بيانات التواصل</h3>
+        {% if settings.phone %}
+          <a href="tel:{{ settings.phone|replace(' ', '') }}">{{ icon('phone', 19) }} <span dir="ltr">{{ settings.phone }}</span></a>
+        {% endif %}
+        {% if settings.whatsapp %}
+          <a href="https://wa.me/{{ settings.whatsapp|replace('+', '')|replace(' ', '') }}" target="_blank" rel="noopener">{{ icon('whatsapp', 19) }} واتساب</a>
+        {% endif %}
+        {% if settings.email %}
+          <a href="mailto:{{ settings.email }}">{{ icon('mail', 19) }} {{ settings.email }}</a>
+        {% endif %}
+        <span>{{ icon('pin', 19) }} {{ settings.address }}</span>
+        <span>{{ icon('clock', 19) }} {{ settings.working_hours }}</span>
+      </div>
+      <div class="side-card side-note">
+        <span class="feature-icon">{{ icon('clock', 22) }}</span>
+        <h3>وقت الرد</h3>
+        <p>نراجع الطلبات خلال ساعات العمل. للطلبات العاجلة، يفضّل الاتصال بنا مباشرة{% if settings.phone %} على الرقم أعلاه{% endif %}.</p>
+      </div>
+      <div class="side-card side-note">
+        <span class="feature-icon">{{ icon('shield', 22) }}</span>
+        <h3>خصوصيتك</h3>
+        <p>لن نشارك بياناتك مع جهات خارجية إلا بما يلزم لتنفيذ خدمة التوصيل. اقرأ <a href="{{ url_for('public.privacy') }}">سياسة الخصوصية</a>.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

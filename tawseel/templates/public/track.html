@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon, status_badge %}
+{% block content %}
+<section class="page-hero compact">
+  <div class="container page-hero-inner">
+    <span class="eyebrow eyebrow-light">تتبع الشحنة</span>
+    <h1>اعرف مكان شحنتك</h1>
+    <p>أدخل رقم الشحنة لعرض حالتها وآخر التحديثات المسجلة.</p>
+  </div>
+</section>
+
+<section class="section track-section">
+  <div class="container">
+    <div class="track-search-card">
+      <form method="get" action="{{ url_for('public.track') }}" class="track-search" data-loading>
+        <div class="field grow">
+          <label for="code">رقم الشحنة</label>
+          <input id="code" name="code" type="text" value="{{ code }}" placeholder="مثال: TS1392042"
+                 maxlength="32" required pattern="[A-Za-z0-9#\-\s]{3,32}" autocomplete="off" spellcheck="false" autofocus>
+        </div>
+        <button class="btn btn-primary btn-lg" type="submit">{{ icon('search', 19) }} تتبع الشحنة</button>
+      </form>
+      <p class="track-hint">رقم الشحنة تجده في رسالة التأكيد أو الفاتورة. <a href="{{ url_for('public.contact') }}">لم تجد الرقم؟ تواصل معنا.</a></p>
+    </div>
+
+    {% if code and shipment %}
+      {% set flow = ['pending', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered'] %}
+      {% set current_index = flow.index(shipment.status) if shipment.status in flow else -1 %}
+      <article class="shipment-result">
+        <header class="shipment-result-head">
+          <div>
+            <span class="shipment-code-label">رقم الشحنة</span>
+            <h2 class="shipment-code">{{ shipment.code }}</h2>
+            <span class="shipment-service">{{ shipment.service_type|service }}</span>
+          </div>
+          <div class="shipment-head-status">
+            {{ status_badge(shipment.status) }}
+            <span class="shipment-updated">آخر تحديث: {{ shipment.updated_at|datetime }}</span>
+          </div>
+        </header>
+
+        <div class="shipment-meta-grid">
+          <div class="meta-item"><span class="meta-label">من</span><span class="meta-value">{{ shipment.origin }}</span></div>
+          <div class="meta-item"><span class="meta-label">إلى</span><span class="meta-value">{{ shipment.destination }}</span></div>
+          <div class="meta-item"><span class="meta-label">عدد القطع</span><span class="meta-value">{{ shipment.pieces }}</span></div>
+          <div class="meta-item"><span class="meta-label">الوزن</span><span class="meta-value">{{ shipment.weight_kg|weight }}</span></div>
+          <div class="meta-item"><span class="meta-label">تاريخ الإنشاء</span><span class="meta-value">{{ shipment.created_at|date }}</span></div>
+          <div class="meta-item"><span class="meta-label">تاريخ التسليم</span><span class="meta-value">{{ shipment.delivered_at|date if shipment.delivered_at else '—' }}</span></div>
+        </div>
+
+        {% if shipment.status in flow %}
+          <div class="progress-track" aria-label="مراحل الشحنة">
+            {% for step in flow %}
+              {% set step_meta = status_meta(step) %}
+              <div class="progress-step {{ 'is-done' if loop.index0 < current_index else 'is-current' if loop.index0 == current_index else '' }}">
+                <span class="progress-dot">{{ icon('check', 13) if loop.index0 < current_index else loop.index }}</span>
+                <span>{{ step_meta.label }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="shipment-body-grid">
+          <div class="timeline-panel">
+            <h3>سجل التتبع</h3>
+            {% if events %}
+              <ol class="timeline">
+                {% for event in events %}
+                  <li class="timeline-item {{ 'is-current' if loop.first else '' }}">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                      <span class="timeline-date">{{ event.event_at|datetime }}</span>
+                      <h4>{{ event.note or status_meta(event.status).label }}</h4>
+                      <p>{{ status_meta(event.status).label }}{% if event.location %} — {{ event.location }}{% endif %}</p>
+                    </div>
+                  </li>
+                {% endfor %}
+              </ol>
+            {% else %}
+              <p class="muted">لا توجد أحداث مسجلة بعد.</p>
+            {% endif %}
+          </div>
+          <aside class="shipment-side">
+            <div class="side-card">
+              <h3>تحتاج تفاصيل أكثر؟</h3>
+              <p>سجّل الدخول إلى حسابك لعرض شحناتك وإشعاراتك، أو تواصل مع فريق توصيل.</p>
+              {% if current_user %}
+                <a class="btn btn-primary btn-block" href="{{ url_for('customer.dashboard') }}">فتح لوحتي</a>
+              {% else %}
+                <a class="btn btn-primary btn-block" href="{{ url_for('auth.login', next=request.path) }}">تسجيل الدخول</a>
+              {% endif %}
+              <a class="btn btn-ghost btn-block" href="{{ url_for('public.contact') }}">تواصل معنا</a>
+            </div>
+            <div class="side-card side-note">
+              <span class="feature-icon">{{ icon('shield', 21) }}</span>
+              <p>حالة الشحنة تُحدّث من فرق التشغيل. قد يظهر تأخر بسيط بين وصول الشحنة وتحديث النظام.</p>
+            </div>
+          </aside>
+        </div>
+      </article>
+    {% elif code %}
+      <div class="empty-state large">
+        <span class="empty-icon">{{ icon('search', 34) }}</span>
+        <h2>لم نجد شحنة بهذا الرقم</h2>
+        <p>تأكد من كتابة الرقم كما هو في رسالة التأكيد، أو تواصل معنا وسنساعدك في البحث.</p>
+        <div class="empty-actions">
+          <a class="btn btn-primary" href="{{ url_for('public.track') }}">محاولة أخرى</a>
+          <a class="btn btn-ghost" href="{{ url_for('public.contact') }}">تواصل معنا</a>
+        </div>
+      </div>
+    {% else %}
+      <div class="track-empty">
+        <div class="track-empty-visual" aria-hidden="true">
+          <span>{{ icon('package', 42) }}</span>
+          <i></i><i></i><i></i>
+        </div>
+        <div>
+          <h2>شحنتك على بُعد خطوة</h2>
+          <p>أدخل الرقم أعلاه لمعرفة حالة الشحنة، آخر موقع مسجل، وتاريخ التسليم إن تم.</p>
+          <ul class="check-list compact">
+            <li>{{ icon('check', 18) }} تحديثات مباشرة من مسار الشحنة</li>
+            <li>{{ icon('check', 18) }} عرض حالة التسليم والاستلام</li>
+            <li>{{ icon('check', 18) }} إمكانية متابعة كل شحناتك من الحساب</li>
+          </ul>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

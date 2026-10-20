@@ -1,0 +1,39 @@
+{% extends "customer/base.html" %}
+{% from "_macros.html" import icon, empty_state %}
+{% block portal_content %}
+<div class="page-head">
+  <div>
+    <span class="eyebrow">الإشعارات</span>
+    <h1>آخر التحديثات</h1>
+    <p>كل ما يخص شحناتك في مكان واحد.</p>
+  </div>
+  {% if notifications %}
+    <form method="post" action="{{ url_for('customer.notifications_read') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-ghost" type="submit">{{ icon('check', 17) }} تحديد الكل كمقروء</button>
+    </form>
+  {% endif %}
+</div>
+
+<section class="panel">
+  {% if notifications %}
+    <ul class="notification-list">
+      {% for item in notifications %}
+        <li class="{{ 'is-unread' if not item.read_at else '' }}">
+          <span class="notif-dot"></span>
+          <div class="notif-body">
+            <div class="notif-head">
+              <strong>{{ item.title }}</strong>
+              <small>{{ item.created_at|datetime }}</small>
+            </div>
+            <p>{{ item.body }}</p>
+            {% if item.link %}<a class="text-link" href="{{ item.link }}">عرض التفاصيل {{ icon('arrow-left', 15) }}</a>{% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    {{ empty_state('لا توجد إشعارات', 'ستظهر هنا تحديثات شحناتك وحالة التسليم.') }}
+  {% endif %}
+</section>
+{% endblock %}

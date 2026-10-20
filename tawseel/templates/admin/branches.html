@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon, empty_state %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <span class="eyebrow">شبكة التشغيل</span>
+    <h2>الفروع</h2>
+    <p>أنشئ الفروع وحدّد الفريق المسؤول عن شحنات كل فرع.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('admin.branch_new') }}">{{ icon('plus', 17) }} فرع جديد</a>
+</div>
+
+<section class="panel">
+  <div class="panel-head">
+    <div><h2>قائمة الفروع</h2><p>{{ branches|length }} فرع مسجل في النظام.</p></div>
+  </div>
+  {% if branches %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <caption class="sr-only">فروع الشركة</caption>
+        <thead>
+          <tr>
+            <th scope="col">الفرع</th>
+            <th scope="col">المدينة</th>
+            <th scope="col">الهاتف</th>
+            <th scope="col">الموظفون</th>
+            <th scope="col">الشحنات</th>
+            <th scope="col">الحالة</th>
+            <th scope="col"><span class="sr-only">إجراء</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for branch in branches %}
+            <tr>
+              <td><strong>{{ branch.name }}</strong><br><small class="muted" dir="ltr">{{ branch.code }}</small></td>
+              <td>{{ branch.city or '—' }}</td>
+              <td dir="ltr">{{ branch.phone|phone if branch.phone else '—' }}</td>
+              <td>{{ branch.staff_count }}</td>
+              <td>{{ branch.shipment_count }}</td>
+              <td><span class="badge {{ 'badge-success' if branch.is_active else 'badge-warning' }}">{{ 'نشط' if branch.is_active else 'موقوف' }}</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="{{ url_for('admin.branch_edit', branch_id=branch.id) }}">تعديل</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty_state('لا توجد فروع بعد', 'أنشئ أول فرع لإسناد الشحنات إلى موظفيه.', url_for('admin.branch_new'), 'فرع جديد') }}
+  {% endif %}
+</section>
+
+<div class="panel side-note">
+  <span class="feature-icon">{{ icon('shield', 21) }}</span>
+  <h3>كيف تعمل الفروع؟</h3>
+  <p>كل شحنة يمكن إسنادها إلى فرع واحد. موظفو الفرع يرون الشحنات المسندة إليهم فقط، ويمكنهم تحديث حالتها من بوابة الفرع. إيقاف الفرع يمنع موظفيه من الدخول فوراً.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <a class="back-link" href="{{ url_for('admin.staff_list') }}">{{ icon('arrow-right', 16) }} عودة للموظفين</a>
+    <h2>{{ 'تعديل الموظف' if staff else 'موظف جديد' }}</h2>
+    <p>{{ 'حدّث بيانات الحساب أو أعد تعيين كلمة المرور.' if staff else 'أنشئ حساب دخول لموظف فرع وحدّد نطاق عمله.' }}</p>
+  </div>
+</div>
+
+<form method="post" class="admin-form" data-loading>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <section class="panel form-section">
+    <div class="panel-head"><div><h2>بيانات الموظف</h2><p>الهوية والفرع والدور التشغيلي.</p></div></div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="staff-name">الاسم الكامل</label>
+        <input id="staff-name" name="name" type="text" maxlength="120" required value="{{ values.name }}">
+      </div>
+      <div class="field">
+        <label for="staff-email">البريد الإلكتروني</label>
+        <input id="staff-email" name="email" type="email" maxlength="200" required dir="ltr" autocomplete="off" value="{{ values.email }}">
+      </div>
+      <div class="field">
+        <label for="staff-phone">الهاتف <span class="optional">اختياري</span></label>
+        <input id="staff-phone" name="phone" type="tel" maxlength="20" dir="ltr" placeholder="+968 9xxx xxxx" value="{{ values.phone }}">
+      </div>
+      <div class="field">
+        <label for="staff-branch">الفرع</label>
+        <select id="staff-branch" name="branch_id" required>
+          <option value="">اختر الفرع</option>
+          {% for branch in branches %}
+            <option value="{{ branch.id }}" {{ 'selected' if values.branch_id|string == branch.id|string else '' }}>{{ branch.name }} — {{ branch.code }}{{ ' (موقوف)' if not branch.is_active else '' }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="staff-role">الدور</label>
+        {% set roles = [('agent','موظف عمليات'),('manager','مدير فرع')] %}
+        <select id="staff-role" name="role" required>
+          {% for value, label in roles %}
+            <option value="{{ value }}" {{ 'selected' if values.role == value else '' }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <small class="field-hint">الدور الحالي تشغيلي؛ مدير الفرع وموظف العمليات يتابعان شحنات الفرع.</small>
+      </div>
+    </div>
+    <label class="toggle-row">
+      <input type="checkbox" name="is_active" value="1" {{ 'checked' if values.is_active else '' }}>
+      <span class="toggle-copy"><strong>الحساب نشط</strong><small>إيقاف الحساب يمنع الدخول ويُنهي جلسات الموظف الحالية.</small></span>
+    </label>
+  </section>
+
+  <section class="panel form-section">
+    <div class="panel-head">
+      <div><h2>{{ 'إعادة تعيين كلمة المرور' if staff else 'كلمة المرور' }}</h2><p>{{ 'اتركها فارغة للإبقاء على كلمة المرور الحالية.' if staff else '10 أحرف على الأقل.' }}</p></div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label for="staff-password">{{ 'كلمة مرور جديدة' if staff else 'كلمة المرور' }} {% if staff %}<span class="optional">اختياري</span>{% endif %}</label>
+        <input id="staff-password" name="password" type="password" minlength="10" {{ 'required' if not staff else '' }} autocomplete="new-password" dir="ltr">
+      </div>
+      <div class="field">
+        <label for="staff-confirm">تأكيد كلمة المرور</label>
+        <input id="staff-confirm" name="confirm_password" type="password" minlength="10" {{ 'required' if not staff else '' }} autocomplete="new-password" dir="ltr">
+      </div>
+    </div>
+    <div class="config-note">
+      <strong>ملاحظة:</strong>
+      <span>تغيير كلمة المرور أو الفرع أو إيقاف الحساب يُنهي جلسات الموظف المفتوحة ويطلب تسجيل الدخول من جديد.</span>
+    </div>
+    <div class="form-actions">
+      <a class="btn btn-ghost" href="{{ url_for('admin.staff_list') }}">إلغاء</a>
+      <button class="btn btn-primary" type="submit">{{ icon('check', 17) }} {{ 'حفظ التعديلات' if staff else 'إنشاء الحساب' }}</button>
+    </div>
+  </section>
+</form>
+{% endblock %}

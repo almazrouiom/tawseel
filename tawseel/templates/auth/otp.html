@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block content %}
+<section class="auth-section auth-section-slim">
+  <div class="container">
+    <div class="otp-card">
+      <a class="back-link" href="{{ url_for('auth.login') }}">{{ icon('arrow-right', 17) }} العودة لتسجيل الدخول</a>
+      <div class="otp-head">
+        <span class="otp-icon">{{ icon('lock', 28) }}</span>
+        <span class="eyebrow">{{ purpose_label }}</span>
+        <h1>أدخل رمز التحقق</h1>
+        <p>أرسلنا رمزاً مكوناً من ٦ أرقام إلى <strong dir="ltr">{{ masked_phone }}</strong>.</p>
+      </div>
+
+      {% if error %}
+        <div class="alert alert-error"><span class="alert-icon">{{ icon('shield', 20) }}</span><span>{{ error }}</span></div>
+      {% endif %}
+
+      {% if dev_code %}
+        <div class="dev-box">
+          <span class="dev-label">وضع التطوير — رمز التحقق</span>
+          <strong dir="ltr">{{ dev_code }}</strong>
+          <small>يظهر هذا الرمز محلياً فقط. في الإنتاج يُرسل عبر SMS.</small>
+        </div>
+      {% endif %}
+
+      <form method="post" action="{{ url_for('auth.verify') }}" class="otp-form" data-loading>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="otp-code">رمز التحقق</label>
+        <input id="otp-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code"
+               pattern="[0-9]{6}" maxlength="6" required class="otp-input" data-otp-input
+               aria-describedby="otp-hint" autofocus>
+        <small id="otp-hint" class="field-hint">الرمز صالح لمدة 5 دقائق ولا يمكن استخدامه أكثر من مرة.</small>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">تحقق ودخول {{ icon('arrow-left', 18) }}</button>
+      </form>
+
+      <div class="otp-resend">
+        {% if resend_left > 0 %}
+          <form method="post" action="{{ url_for('auth.resend') }}" data-resend-form data-cooldown="{{ resend_wait }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="link-button" data-resend-button disabled>إعادة إرسال الرمز بعد <span data-countdown>{{ resend_wait }}</span> ثانية</button>
+          </form>
+          <small>لديك {{ resend_left }} محاولات إعادة إرسال متبقية.</small>
+        {% else %}
+          <p class="muted">تم استهلاك محاولات إعادة الإرسال. يمكنك البدء من جديد أو التواصل مع الدعم.</p>
+        {% endif %}
+      </div>
+
+      <div class="otp-help">
+        <span>{{ icon('phone', 18) }} لم يصلك الرمز؟</span>
+        <a href="{{ url_for('public.contact') }}">تواصل مع خدمة العملاء</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

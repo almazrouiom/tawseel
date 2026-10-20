@@ -1,0 +1,83 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon, status_badge, pagination_nav, empty_state %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <span class="eyebrow">إدارة العمليات</span>
+    <h2>الشحنات</h2>
+    <p>ابحث، صفِّ، وأنشئ الشحنات وتابع حالتها.</p>
+  </div>
+  <div class="panel-actions">
+    <a class="btn btn-ghost" href="{{ url_for('admin.shipments_csv') }}">{{ icon('download', 17) }} تصدير CSV</a>
+    <a class="btn btn-primary" href="{{ url_for('admin.shipment_new') }}">{{ icon('plus', 17) }} شحنة جديدة</a>
+  </div>
+</div>
+
+<form method="get" class="filter-bar" data-loading>
+  <div class="field grow">
+    <label class="sr-only" for="admin-shipment-search">بحث</label>
+    <input id="admin-shipment-search" name="q" type="search" value="{{ q }}" placeholder="ابحث بالكود، العميل، الهاتف، أو المدينة...">
+  </div>
+  <div class="field">
+    <label class="sr-only" for="admin-status-filter">الحالة</label>
+    <select id="admin-status-filter" name="status">
+      <option value="">كل الحالات</option>
+      {% set statuses = [('pending','قيد التسجيل'),('picked_up','تم الاستلام'),('in_transit','قيد النقل'),('out_for_delivery','قيد التوصيل'),('delivered','تم التوصيل'),('on_hold','معلّقة'),('cancelled','ملغاة')] %}
+      {% for value, label in statuses %}
+        <option value="{{ value }}" {{ 'selected' if status == value else '' }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="btn btn-primary" type="submit">{{ icon('search', 17) }} بحث</button>
+  {% if q or status %}<a class="btn btn-ghost" href="{{ url_for('admin.shipments') }}">مسح</a>{% endif %}
+</form>
+
+<section class="panel">
+  <div class="panel-head">
+    <div><h2>النتائج</h2><p>{{ total }} شحنة</p></div>
+    <span class="muted small">مرتبة من الأحدث</span>
+  </div>
+  {% if shipments %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <caption class="sr-only">قائمة الشحنات</caption>
+        <thead>
+          <tr>
+            <th scope="col">الشحنة</th>
+            <th scope="col">العميل</th>
+            <th scope="col">الفرع</th>
+            <th scope="col">المسار</th>
+            <th scope="col">الخدمة</th>
+            <th scope="col">الحالة</th>
+            <th scope="col">التاريخ</th>
+            <th scope="col"><span class="sr-only">إجراء</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for shipment in shipments %}
+            <tr>
+              <td><a class="code-link" href="{{ url_for('admin.shipment_detail', shipment_id=shipment.id) }}">{{ shipment.code }}</a></td>
+              <td>
+                {% if shipment.customer_name %}
+                  {{ shipment.customer_name }}
+                {% else %}
+                  <span class="muted">غير مرتبطة</span>
+                {% endif %}
+              </td>
+              <td>{{ shipment.branch_name or '—' }}</td>
+              <td>{{ shipment.origin }} <span class="arrow-sep">←</span> {{ shipment.destination }}</td>
+              <td>{{ shipment.service_type|service }}</td>
+              <td>{{ status_badge(shipment.status) }}</td>
+              <td class="nowrap">{{ shipment.created_at|date }}</td>
+              <td><a class="btn btn-ghost btn-sm" href="{{ url_for('admin.shipment_detail', shipment_id=shipment.id) }}">إدارة</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ pagination_nav(pagination, page_url) }}
+  {% else %}
+    {{ empty_state('لا توجد شحنات', 'لم نجد شحنة مطابقة. جرّب مسح البحث أو أنشئ شحنة جديدة.', url_for('admin.shipment_new'), 'شحنة جديدة') }}
+  {% endif %}
+</section>
+{% endblock %}

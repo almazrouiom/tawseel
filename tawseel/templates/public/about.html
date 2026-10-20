@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block content %}
+<section class="page-hero">
+  <div class="container page-hero-inner">
+    <span class="eyebrow eyebrow-light">من نحن</span>
+    <h1>نُقرّب المسافات، ونُبقي شحنتك واضحة</h1>
+    <p>توصيل منصة عُمانية تهتم بتقديم تجربة توصيل منظمة وموثوقة للأفراد والشركات.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container about-grid">
+    <div class="about-copy">
+      <span class="eyebrow">قصتنا</span>
+      <h2>بدأنا من فكرة بسيطة: التوصيل يجب أن يكون واضحاً</h2>
+      <p>في كثير من الأحيان تكون المشكلة في التوصيل ليست الوصول فقط، بل عدم معرفة أين وصلت الشحنة ومن المسؤول عنها. لذلك بنينا توصيل حول فكرة أن كل شحنة يجب أن يكون لها مسار واضح وتحديث مفهوم.</p>
+      <p>نعمل مع الأفراد والشركات والمتاجر الإلكترونية، ونركز على لحظات مهمة: استلام منظم، تحديثات مفيدة، وتسليم يمكن الاعتماد عليه.</p>
+      <div class="about-points">
+        <div><strong>رسالتنا</strong><p>تسهيل توصيل الشحنات في سلطنة عُمان عبر تجربة بسيطة ومتابعة واضحة.</p></div>
+        <div><strong>رؤيتنا</strong><p>أن نكون الخيار الذي يثق به العميل عندما تهمّه شحنته.</p></div>
+      </div>
+    </div>
+    <div class="values-card">
+      <h3>ما نلتزم به</h3>
+      <div class="value-row"><span>{{ icon('shield', 21) }}</span><div><strong>المسؤولية</strong><p>نتعامل مع الشحنة كأنها شحنتنا.</p></div></div>
+      <div class="value-row"><span>{{ icon('search', 21) }}</span><div><strong>الوضوح</strong><p>معلومات وحالة مفهومة دون تعقيد.</p></div></div>
+      <div class="value-row"><span>{{ icon('clock', 21) }}</span><div><strong>الالتزام</strong><p>نحترم الوقت ونحدّثك بما يحدث.</p></div></div>
+      <div class="value-row"><span>{{ icon('phone', 21) }}</span><div><strong>القرب</strong><p>دعم يستمع ويبحث عن حل.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-muted">
+  <div class="container">
+    <div class="section-head centered">
+      <div>
+        <span class="eyebrow">قيمنا في العمل</span>
+        <h2>ثلاثة مبادئ لا نتنازل عنها</h2>
+      </div>
+    </div>
+    <div class="principle-grid">
+      <div class="principle-card"><span class="service-icon tone-navy">{{ icon('check', 25) }}</span><h3>نقول ما نفعله</h3><p>نحدد الخطوات والمواعيد بوضوح، ونحدّث الحالة عند أي تغيير.</p></div>
+      <div class="principle-card"><span class="service-icon tone-green">{{ icon('shield', 25) }}</span><h3>نحمي ما نستلم</h3><p>نتعامل مع كل شحنة بعناية ونحافظ على سرية بيانات العملاء.</p></div>
+      <div class="principle-card"><span class="service-icon tone-orange">{{ icon('sparkle', 25) }}</span><h3>نبحث عن الأفضل</h3><p>نراجع تجربتنا باستمرار لنبسّط على العميل كل خطوة.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container cta-inner">
+    <div><h2>تعرف على الفريق وراء شحنتك</h2><p>لديك سؤال أو تحتاج ترتيب شحنة؟ تواصل معنا.</p></div>
+    <a class="btn btn-accent btn-lg" href="{{ url_for('public.contact') }}">تواصل معنا</a>
+  </div>
+</section>
+{% endblock %}

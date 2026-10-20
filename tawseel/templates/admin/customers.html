@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon, empty_state %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <span class="eyebrow">الحسابات</span>
+    <h2>العملاء</h2>
+    <p>عرض العملاء المسجلين وشحناتهم وحالة حساباتهم.</p>
+  </div>
+</div>
+
+<form method="get" class="filter-bar" data-loading>
+  <div class="field grow">
+    <label class="sr-only" for="customer-search">بحث</label>
+    <input id="customer-search" name="q" type="search" value="{{ q }}" placeholder="ابحث بالاسم، الهاتف، البريد، أو الشركة...">
+  </div>
+  <button class="btn btn-primary" type="submit">{{ icon('search', 17) }} بحث</button>
+  {% if q %}<a class="btn btn-ghost" href="{{ url_for('admin.customers') }}">مسح</a>{% endif %}
+</form>
+
+<section class="panel">
+  <div class="panel-head">
+    <div><h2>قائمة العملاء</h2><p>{{ customers|length }} عميل</p></div>
+  </div>
+  {% if customers %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <caption class="sr-only">قائمة العملاء</caption>
+        <thead><tr><th scope="col">العميل</th><th scope="col">الهاتف</th><th scope="col">الشركة</th><th scope="col">الشحنات</th><th scope="col">تاريخ التسجيل</th><th scope="col">الحالة</th><th scope="col"><span class="sr-only">إجراء</span></th></tr></thead>
+        <tbody>
+          {% for customer in customers %}
+            <tr>
+              <td><a class="code-link" href="{{ url_for('admin.customer_detail', user_id=customer.id) }}">{{ customer.name }}</a></td>
+              <td dir="ltr">{{ customer.phone|phone }}</td>
+              <td>{{ customer.company or '—' }}</td>
+              <td>{{ customer.shipment_count }}</td>
+              <td class="nowrap">{{ customer.created_at|date }}</td>
+              <td><span class="badge {{ 'badge-success' if customer.is_active else 'badge-danger' }}"><span class="badge-dot"></span>{{ 'نشط' if customer.is_active else 'موقوف' }}</span></td>
+              <td><a class="btn btn-ghost btn-sm" href="{{ url_for('admin.customer_detail', user_id=customer.id) }}">عرض</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty_state('لا يوجد عملاء', 'ستظهر هنا الحسابات التي تنشئ عبر الموقع.') }}
+  {% endif %}
+</section>
+{% endblock %}

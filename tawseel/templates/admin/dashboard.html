@@ -1,0 +1,78 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon, status_badge, empty_state %}
+{% block admin_content %}
+{% if not sms_ok %}
+  <div class="alert alert-warning">
+    <span class="alert-icon">{{ icon('shield', 20) }}</span>
+    <span>إرسال SMS غير مهيأ بعد. لن يستطيع العملاء تسجيل الدخول عبر رمز التحقق حتى تضبط مزوّد الرسائل في متغيرات البيئة. <a href="{{ url_for('admin.settings_page') }}">راجع الإعدادات</a>.</span>
+  </div>
+{% endif %}
+
+<div class="admin-stat-grid">
+  <div class="admin-stat"><span class="stat-icon tone-blue">{{ icon('package', 22) }}</span><div><strong>{{ stats.total }}</strong><span>إجمالي الشحنات</span></div></div>
+  <div class="admin-stat"><span class="stat-icon tone-orange">{{ icon('truck', 22) }}</span><div><strong>{{ stats.active }}</strong><span>شحنات نشطة</span></div></div>
+  <div class="admin-stat"><span class="stat-icon tone-green">{{ icon('check', 22) }}</span><div><strong>{{ stats.delivered }}</strong><span>تم توصيلها</span></div></div>
+  <div class="admin-stat"><span class="stat-icon tone-navy">{{ icon('users', 22) }}</span><div><strong>{{ stats.customers }}</strong><span>عملاء مسجلون</span></div></div>
+  <div class="admin-stat"><span class="stat-icon tone-blue">{{ icon('mail', 22) }}</span><div><strong>{{ stats.requests }}</strong><span>طلبات جديدة</span></div></div>
+</div>
+
+<div class="admin-columns">
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>أحدث الشحنات</h2><p>آخر الشحنات المسجلة في النظام.</p></div>
+      <div class="panel-actions">
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('admin.shipments') }}">عرض الكل</a>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('admin.shipment_new') }}">{{ icon('plus', 16) }} شحنة</a>
+      </div>
+    </div>
+    {% if recent_shipments %}
+      <div class="table-wrap">
+        <table class="data-table">
+          <caption class="sr-only">أحدث الشحنات</caption>
+          <thead><tr><th scope="col">الشحنة</th><th scope="col">العميل</th><th scope="col">المسار</th><th scope="col">الحالة</th><th scope="col">التاريخ</th><th scope="col"><span class="sr-only">إجراء</span></th></tr></thead>
+          <tbody>
+            {% for shipment in recent_shipments %}
+              <tr>
+                <td><a class="code-link" href="{{ url_for('admin.shipment_detail', shipment_id=shipment.id) }}">{{ shipment.code }}</a></td>
+                <td>{{ shipment.customer_name or '—' }}</td>
+                <td>{{ shipment.origin }} <span class="arrow-sep">←</span> {{ shipment.destination }}</td>
+                <td>{{ status_badge(shipment.status) }}</td>
+                <td class="nowrap">{{ shipment.created_at|date }}</td>
+                <td><a class="btn btn-ghost btn-sm" href="{{ url_for('admin.shipment_detail', shipment_id=shipment.id) }}">إدارة</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {{ empty_state('لا توجد شحنات', 'ابدأ بإنشاء أول شحنة.', url_for('admin.shipment_new'), 'شحنة جديدة') }}
+    {% endif %}
+  </section>
+
+  <aside class="panel">
+    <div class="panel-head">
+      <div><h2>طلبات التواصل</h2><p>آخر الطلبات الواردة.</p></div>
+      <a class="text-link" href="{{ url_for('admin.requests_list') }}">الكل</a>
+    </div>
+    {% if recent_requests %}
+      <ul class="request-mini-list">
+        {% for item in recent_requests %}
+          <li>
+            <span class="request-type {{ 'is-quote' if item.kind == 'quote' else '' }}">{{ 'عرض سعر' if item.kind == 'quote' else 'استفسار' }}</span>
+            <div><strong>{{ item.name }}</strong><p>{{ item.message[:70] }}{{ '…' if item.message|length > 70 else '' }}</p><small>{{ item.created_at|datetime }}</small></div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">لا توجد طلبات حالياً.</p>
+    {% endif %}
+  </aside>
+</div>
+
+<div class="admin-quick">
+  <a href="{{ url_for('admin.shipment_new') }}">{{ icon('plus', 20) }} <span><strong>شحنة جديدة</strong><small>تسجيل شحنة وإضافة أول حدث</small></span></a>
+  <a href="{{ url_for('admin.customers') }}">{{ icon('users', 20) }} <span><strong>العملاء</strong><small>عرض الحسابات والشحنات</small></span></a>
+  <a href="{{ url_for('admin.requests_list') }}">{{ icon('mail', 20) }} <span><strong>الطلبات</strong><small>مراجعة طلبات التواصل</small></span></a>
+  <a href="{{ url_for('admin.settings_page') }}">{{ icon('settings', 20) }} <span><strong>الإعدادات</strong><small>بيانات الشركة والرسائل</small></span></a>
+</div>
+{% endblock %}

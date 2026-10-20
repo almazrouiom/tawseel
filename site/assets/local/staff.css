@@ -1,0 +1,66 @@
+/* Branch staff portal additions, layered on the admin workspace styles. */
+.staff-body { background: #edf4f3; }
+.staff-side { background: linear-gradient(180deg, #07303d, #064251 65%, #07515b); }
+
+.staff-branch-mini {
+  display: flex; align-items: center; gap: 9px;
+  margin: 0 7px 14px; padding: 10px 11px; border-radius: 12px;
+  color: #d9f0eb; background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+.staff-branch-mini > span { color: #7fe0c3; display: flex; }
+.staff-branch-mini strong { display: block; font-size: 11.5px; color: #fff; }
+.staff-branch-mini small { display: block; font-size: 9px; color: #8fc4bd; letter-spacing: .08em; }
+
+.staff-title-branch {
+  display: inline-flex; align-items: center; gap: 4px;
+  color: #2f7969 !important; font-weight: 600;
+}
+
+.staff-stat-grid { grid-template-columns: repeat(4, 1fr); }
+.staff-count-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 13px; border-radius: 999px; white-space: nowrap;
+  font-size: 11px; font-weight: 700; color: #0d5f55;
+  background: #ddf3ed; border: 1px solid #bce7dc;
+}
+
+.staff-branch-hero,
+.staff-profile-head {
+  display: flex; align-items: center; gap: 11px;
+  padding: 4px 0 15px; margin-bottom: 4px;
+  border-bottom: 1px solid #edf2f1;
+}
+.staff-branch-hero .feature-icon { flex: none; }
+.staff-branch-hero strong,
+.staff-profile-head strong { display: block; color: var(--navy); font-size: 13px; }
+.staff-branch-hero small,
+.staff-profile-head small { display: block; color: #5b6d75; font-size: 10px; letter-spacing: .06em; }
+.staff-profile-head { padding-top: 0; }
+
+.staff-team-list { list-style: none; padding: 0; margin: 0; }
+.staff-team-list li {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 0; border-bottom: 1px solid #edf2f1;
+}
+.staff-team-list li:last-child { border-bottom: 0; }
+.staff-team-list strong { display: block; font-size: 11.5px; color: var(--navy); line-height: 1.45; }
+.staff-team-list small { display: block; font-size: 10px; color: #5b6d75; }
+
+.staff-table td { vertical-align: middle; }
+.staff-table .code-link { white-space: nowrap; }
+
+.staff-login-aside {
+  background:
+    radial-gradient(circle at 85% 15%, rgba(84, 210, 174, .18), transparent 38%),
+    linear-gradient(150deg, #07303d, #07515b 70%, #0a6a66);
+}
+.staff-login-card .auth-head .eyebrow { color: #0d7a6b; }
+
+@media (max-width: 1150px) {
+  .staff-stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 700px) {
+  .staff-stat-grid { grid-template-columns: 1fr 1fr; }
+  .staff-count-pill { align-self: flex-start; }
+}

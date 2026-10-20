@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon, empty_state %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <span class="eyebrow">فريق التشغيل</span>
+    <h2>الموظفون</h2>
+    <p>أنشئ حسابات موظفي الفروع وتحكم في نطاق عملهم وصلاحياتهم.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('admin.staff_new') }}">{{ icon('plus', 17) }} موظف جديد</a>
+</div>
+
+<section class="panel">
+  <div class="panel-head">
+    <div><h2>حسابات الفروع</h2><p>{{ staff_members|length }} حساب موظف مسجل.</p></div>
+  </div>
+  {% if staff_members %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <caption class="sr-only">موظفو الفروع</caption>
+        <thead>
+          <tr>
+            <th scope="col">الموظف</th>
+            <th scope="col">الفرع</th>
+            <th scope="col">الدور</th>
+            <th scope="col">الهاتف</th>
+            <th scope="col">الحالة</th>
+            <th scope="col">آخر دخول</th>
+            <th scope="col"><span class="sr-only">إجراء</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for member in staff_members %}
+            <tr>
+              <td><strong>{{ member.name }}</strong><br><small class="muted" dir="ltr">{{ member.email }}</small></td>
+              <td>{{ member.branch_name }}<br><small class="muted" dir="ltr">{{ member.branch_code }}</small></td>
+              <td>{{ member.role|staff_role }}</td>
+              <td dir="ltr">{{ member.phone|phone if member.phone else '—' }}</td>
+              <td><span class="badge {{ 'badge-success' if member.is_active else 'badge-warning' }}">{{ 'نشط' if member.is_active else 'موقوف' }}</span></td>
+              <td class="nowrap">{{ member.last_login_at|datetime if member.last_login_at else '—' }}</td>
+              <td><a class="btn btn-ghost btn-sm" href="{{ url_for('admin.staff_edit', staff_id=member.id) }}">تعديل</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty_state('لا يوجد موظفو فروع بعد', 'أنشئ حساب موظف وحدّد الفرع الذي سيتابع شحناته.', url_for('admin.staff_new'), 'موظف جديد') }}
+  {% endif %}
+</section>
+
+<div class="panel side-note">
+  <span class="feature-icon">{{ icon('shield', 21) }}</span>
+  <h3>صلاحيات منفصلة</h3>
+  <p>حساب موظف الفرع مستقل عن حساب مدير النظام. يمكنه عرض شحنات فرعه وتحديث حالتها فقط، ولا يستطيع إدارة العملاء أو الفروع أو إعدادات الموقع.</p>
+</div>
+{% endblock %}

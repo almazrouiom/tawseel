@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon, empty_state %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <span class="eyebrow">التواصل</span>
+    <h2>طلبات التواصل</h2>
+    <p>طلبات عروض الأسعار والاستفسارات الواردة من الموقع.</p>
+  </div>
+</div>
+
+<nav class="filter-tabs" aria-label="تصفية الطلبات">
+  <a href="{{ url_for('admin.requests_list') }}" class="{{ 'is-active' if not status else '' }}">الكل</a>
+  <a href="{{ url_for('admin.requests_list', status='new') }}" class="{{ 'is-active' if status == 'new' else '' }}">جديدة</a>
+  <a href="{{ url_for('admin.requests_list', status='handled') }}" class="{{ 'is-active' if status == 'handled' else '' }}">تمت معالجتها</a>
+</nav>
+
+{% if requests %}
+  <div class="request-grid">
+    {% for item in requests %}
+      <article class="request-card {{ 'is-handled' if item.status == 'handled' else '' }}">
+        <header class="request-card-head">
+          <div>
+            <span class="request-type {{ 'is-quote' if item.kind == 'quote' else '' }}">{{ 'طلب عرض سعر' if item.kind == 'quote' else 'استفسار عام' }}</span>
+            <h3>{{ item.name }}</h3>
+          </div>
+          <span class="badge {{ 'badge-success' if item.status == 'handled' else 'badge-warning' }}"><span class="badge-dot"></span>{{ 'تمت المعالجة' if item.status == 'handled' else 'جديد' }}</span>
+        </header>
+        <div class="request-contact">
+          <a href="tel:{{ item.phone }}" dir="ltr">{{ icon('phone', 16) }} {{ item.phone|phone }}</a>
+          {% if item.email %}<a href="mailto:{{ item.email }}" dir="ltr">{{ icon('mail', 16) }} {{ item.email }}</a>{% endif %}
+          {% if item.company %}<span>{{ icon('store', 16) }} {{ item.company }}</span>{% endif %}
+        </div>
+        {% if item.kind == 'quote' %}
+          <div class="request-route">
+            <span><small>من</small>{{ item.origin or '—' }}</span>
+            <span class="arrow-sep">←</span>
+            <span><small>إلى</small>{{ item.destination or '—' }}</span>
+            {% if item.weight %}<span><small>الوزن</small>{{ item.weight }}</span>{% endif %}
+          </div>
+        {% endif %}
+        <p class="request-message">{{ item.message }}</p>
+        <footer class="request-card-foot">
+          <small>{{ item.created_at|datetime }}</small>
+          <form method="post" action="{{ url_for('admin.request_status', request_id=item.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-ghost btn-sm" type="submit">{{ icon('check', 16) }} {{ 'إعادة إلى الجديدة' if item.status == 'handled' else 'تحديد كمعالج' }}</button>
+          </form>
+        </footer>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  {{ empty_state('لا توجد طلبات', 'ستظهر هنا طلبات التواصل وعروض الأسعار الواردة.') }}
+{% endif %}
+{% endblock %}

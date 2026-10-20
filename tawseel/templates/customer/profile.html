@@ -1,0 +1,61 @@
+{% extends "customer/base.html" %}
+{% from "_macros.html" import icon %}
+{% block portal_content %}
+<div class="page-head">
+  <div>
+    <span class="eyebrow">الحساب</span>
+    <h1>بيانات الحساب</h1>
+    <p>حدّث بياناتك حتى نتمكن من التواصل معك بشكل صحيح.</p>
+  </div>
+</div>
+
+<div class="profile-grid">
+  <section class="panel">
+    <form method="post" class="stack-form" data-loading>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="field">
+        <label for="profile-name">الاسم الكامل</label>
+        <input id="profile-name" name="name" type="text" required maxlength="80" autocomplete="name" value="{{ user.name }}">
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="profile-phone">رقم الهاتف</label>
+          <input id="profile-phone" type="tel" value="{{ user.phone|phone }}" dir="ltr" disabled>
+          <small class="field-hint">لتغيير رقم الهاتف، تواصل مع خدمة العملاء للتحقق.</small>
+        </div>
+        <div class="field">
+          <label for="profile-email">البريد الإلكتروني <span class="optional">اختياري</span></label>
+          <input id="profile-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr" value="{{ user.email or '' }}">
+        </div>
+      </div>
+      <div class="field">
+        <label for="profile-company">الشركة / المتجر <span class="optional">اختياري</span></label>
+        <input id="profile-company" name="company" type="text" maxlength="120" autocomplete="organization" value="{{ user.company or '' }}">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">حفظ التعديلات</button>
+        <a class="btn btn-ghost" href="{{ url_for('customer.dashboard') }}">إلغاء</a>
+      </div>
+    </form>
+  </section>
+
+  <aside class="profile-side">
+    <div class="side-card">
+      <span class="avatar large">{{ user.name[:1] }}</span>
+      <h2>{{ user.name }}</h2>
+      <p class="muted" dir="ltr">{{ user.phone|phone }}</p>
+      <p class="small muted">عضو منذ {{ user.created_at|date }}</p>
+    </div>
+    <div class="side-card side-note">
+      <span class="feature-icon">{{ icon('shield', 21) }}</span>
+      <h2>أمان الحساب</h2>
+      <p>تسجيل الدخول يتم برمز تحقق يُرسل إلى رقم هاتفك. لا تشارك الرمز مع أي شخص.</p>
+    </div>
+    <div class="side-card side-note">
+      <span class="feature-icon">{{ icon('phone', 21) }}</span>
+      <h2>تغيير رقم الهاتف</h2>
+      <p>لحماية حسابك، يتم تغيير الرقم بعد التحقق من ملكية الرقم الجديد. <a href="{{ url_for('public.contact') }}">تواصل معنا</a>.</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <span class="eyebrow">التخصيص</span>
+    <h2>إعدادات الموقع</h2>
+    <p>بيانات الشركة التي تظهر في الصفحات العامة، وإعدادات إشعارات الشحنات.</p>
+  </div>
+</div>
+
+<div class="settings-grid">
+  <form method="post" class="admin-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <section class="panel form-section">
+      <div class="panel-head"><div><h2>هوية الشركة</h2><p>الاسم والوصف الظاهر في الموقع ومحركات البحث.</p></div></div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="company-name">اسم الشركة (عربي)</label>
+          <input id="company-name" name="company_name" type="text" maxlength="120" required value="{{ settings.company_name }}">
+        </div>
+        <div class="field">
+          <label for="company-name-en">اسم الشركة (إنجليزي)</label>
+          <input id="company-name-en" name="company_name_en" type="text" maxlength="120" dir="ltr" value="{{ settings.company_name_en }}">
+        </div>
+        <div class="field field-wide">
+          <label for="tagline">العبارة التعريفية</label>
+          <input id="tagline" name="tagline" type="text" maxlength="200" value="{{ settings.tagline }}">
+        </div>
+        <div class="field field-wide">
+          <label for="meta-description">وصف الموقع لمحركات البحث</label>
+          <textarea id="meta-description" name="meta_description" rows="3" maxlength="300">{{ settings.meta_description }}</textarea>
+          <small class="field-hint">يفضل أن يكون بين 120 و160 حرفاً.</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel form-section">
+      <div class="panel-head"><div><h2>بيانات التواصل</h2><p>تظهر في التذييل وصفحة التواصل.</p></div></div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="phone">رقم الهاتف</label>
+          <input id="phone" name="phone" type="tel" maxlength="20" dir="ltr" placeholder="+968 9xxx xxxx" value="{{ settings.phone }}">
+          <small class="field-hint">اتركه فارغاً لإخفاء الهاتف من الموقع.</small>
+        </div>
+        <div class="field">
+          <label for="whatsapp">رقم واتساب</label>
+          <input id="whatsapp" name="whatsapp" type="tel" maxlength="20" dir="ltr" placeholder="+968 9xxx xxxx" value="{{ settings.whatsapp }}">
+        </div>
+        <div class="field">
+          <label for="email">البريد الإلكتروني</label>
+          <input id="email" name="email" type="email" maxlength="120" dir="ltr" value="{{ settings.email }}">
+        </div>
+        <div class="field">
+          <label for="working-hours">ساعات العمل</label>
+          <input id="working-hours" name="working_hours" type="text" maxlength="120" value="{{ settings.working_hours }}">
+        </div>
+        <div class="field field-wide">
+          <label for="address">العنوان</label>
+          <input id="address" name="address" type="text" maxlength="200" value="{{ settings.address }}">
+        </div>
+      </div>
+    </section>
+
+    <section class="panel form-section">
+      <div class="panel-head"><div><h2>التواصل الاجتماعي</h2><p>روابط اختيارية تظهر في التذييل.</p></div></div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="instagram">رابط إنستغرام</label>
+          <input id="instagram" name="instagram" type="url" maxlength="300" dir="ltr" placeholder="https://instagram.com/..." value="{{ settings.instagram }}">
+        </div>
+        <div class="field">
+          <label for="twitter">رابط X (تويتر)</label>
+          <input id="twitter" name="twitter" type="url" maxlength="300" dir="ltr" placeholder="https://x.com/..." value="{{ settings.twitter }}">
+        </div>
+      </div>
+    </section>
+
+    <section class="panel form-section">
+      <div class="panel-head"><div><h2>إشعارات الشحنات</h2><p>تحكم في الرسائل الإضافية عند تغير حالة الشحنة.</p></div></div>
+      <label class="toggle-row">
+        <input type="checkbox" name="sms_status_updates" value="1" {{ 'checked' if settings.sms_status_updates == '1' else '' }}>
+        <span class="toggle-copy"><strong>إرسال SMS عند تحديث حالة الشحنة</strong><small>يُرسل إلى رقم العميل المرتبط بالشحنة، ويستهلك رصيد مزوّد الرسائل.</small></span>
+      </label>
+      <div class="config-note">
+        <strong>مزوّد الرسائل الحالي:</strong>
+        <span dir="ltr">{{ sms_provider() }}</span>
+        {% if sms_ready() %}
+          <span class="badge badge-success">مهيأ</span>
+        {% else %}
+          <span class="badge badge-warning">غير مهيأ</span>
+        {% endif %}
+        <p>تُضبط بيانات مزوّد الرسائل في متغيرات البيئة (Twilio أو Unifonic) ولا تُحفظ في قاعدة البيانات. راجع دليل النشر.</p>
+      </div>
+    </section>
+
+    <div class="form-submit-bar">
+      <button class="btn btn-primary btn-lg" type="submit">{{ icon('check', 18) }} حفظ الإعدادات</button>
+    </div>
+  </form>
+
+  <aside class="settings-side">
+    <div class="panel side-note">
+      <span class="feature-icon">{{ icon('shield', 21) }}</span>
+      <h3>قبل النشر</h3>
+      <p>تأكد من إضافة رقم الهاتف الحقيقي، البريد، والعنوان. هذه البيانات تظهر للعملاء وتُستخدم في التواصل.</p>
+    </div>
+    <div class="panel side-note">
+      <span class="feature-icon">{{ icon('mail', 21) }}</span>
+      <h3>رسائل SMS</h3>
+      <p>تسجيل الدخول يعتمد على رمز تحقق. يجب ربط مزوّد رسائل معتمد قبل فتح الموقع للعملاء.</p>
+    </div>
+    <div class="panel side-note">
+      <span class="feature-icon">{{ icon('lock', 21) }}</span>
+      <h3>الأمان</h3>
+      <p>غيّر كلمة مرور المدير الافتراضية قبل النشر، واستخدم كلمة مرور طويلة وفريدة. <a href="{{ url_for('admin.password') }}">تغيير كلمة المرور</a>.</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

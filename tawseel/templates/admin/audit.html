@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+{% from "_macros.html" import icon, empty_state %}
+{% block admin_content %}
+<div class="admin-page-head">
+  <div>
+    <span class="eyebrow">الرقابة</span>
+    <h2>سجل النشاط</h2>
+    <p>آخر العمليات التي تمت من لوحة الإدارة.</p>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="panel-head">
+    <div><h2>العمليات</h2><p>آخر 300 عملية.</p></div>
+  </div>
+  {% if entries %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <caption class="sr-only">سجل نشاط الإدارة</caption>
+        <thead><tr><th scope="col">الوقت</th><th scope="col">المستخدم</th><th scope="col">العملية</th><th scope="col">التفاصيل</th><th scope="col">IP</th></tr></thead>
+        <tbody>
+          {% for entry in entries %}
+            <tr>
+              <td class="nowrap">{{ entry.created_at|datetime }}</td>
+              <td>
+                {% if entry.staff_name %}
+                  {{ entry.staff_name }}<br><small class="muted">{{ entry.staff_email or '' }}{% if entry.staff_branch %} — {{ entry.staff_branch }}{% endif %}</small>
+                {% else %}
+                  {{ entry.admin_name or '—' }}<br><small class="muted">{{ entry.admin_email or '' }}</small>
+                {% endif %}
+              </td>
+              <td>{{ entry.action }}</td>
+              <td>{{ entry.detail or '—' }}</td>
+              <td dir="ltr" class="muted">{{ entry.ip or '—' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty_state('لا يوجد نشاط بعد', 'ستظهر هنا العمليات التي تتم من لوحة الإدارة.') }}
+  {% endif %}
+</section>
+{% endblock %}
