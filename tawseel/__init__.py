@@ -126,13 +126,24 @@ def create_app(test_config: dict | None = None) -> Flask:
     app.jinja_env.globals["sms_ready"] = _sms_ready
     app.jinja_env.globals["sms_provider"] = lambda: app.config["SMS_PROVIDER"]
 
+    static_root = Path(app.static_folder)
+    asset_version_cache: dict[str, int] = {}
+
     @app.template_global()
     def asset_url(filename: str) -> str:
-        """Add a cache-busting version based on the asset's modification time."""
-        try:
-            version = int((Path(app.static_folder) / filename).stat().st_mtime)
-        except OSError:
-            version = 0
+        """Add a cache-busting version based on the asset's modification time.
+
+        The stat result is memoised for the life of the process so that pages
+        referencing several assets do not hit the filesystem on every render.
+        Restart the app (or bump the file and restart) to refresh versions.
+        """
+        version = asset_version_cache.get(filename)
+        if version is None:
+            try:
+                version = int((static_root / filename).stat().st_mtime)
+            except OSError:
+                version = 0
+            asset_version_cache[filename] = version
         return url_for("static", filename=filename, v=version)
 
     @app.after_request
